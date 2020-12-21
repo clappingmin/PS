@@ -1,5 +1,5 @@
 ### Langauge
-* c++   
+* C++   
 * * *
 ### Online Judge
 * [Baekjoon](https://www.acmicpc.net/)   
