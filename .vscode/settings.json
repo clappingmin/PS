@@ -6,6 +6,9 @@
         "xiosbase": "cpp",
         "stack": "cpp",
         "ios": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "ostream": "cpp"
     }
 }
