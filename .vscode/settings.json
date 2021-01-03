@@ -12,7 +12,6 @@
         "ostream": "cpp",
         "xutility": "cpp",
         "xstring": "cpp",
-        "algorithm": "cpp",
-        "limits": "cpp"
+        "algorithm": "cpp"
     }
 }
