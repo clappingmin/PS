@@ -45,12 +45,11 @@ int main()
 
     for (int i = 0; i <= 1000000; i++)
     {
-        int c = i;
-        int len = possible(c);
+        int len = possible(i);
 
         if (len > 0) //버튼 이동이 가능하면
         {
-            int press = c - n;
+            int press = i - n;
 
             if (press < 0)
                 press = -press;
