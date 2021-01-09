@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include <vector>
 #define MAX 20000 + 1
 
 using namespace std;
@@ -63,7 +62,7 @@ int main()
             cnt++;
     }
 
-    cout << num << ' ' << res - 1 << ' ' << cnt << '\n';
+    cout << num << ' ' << res-1 << ' ' << cnt << '\n';
 
     return 0;
 }
