@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include <string>
 #define MAX 1000
 
 using namespace std;
@@ -9,15 +8,21 @@ int dx[4] = {1, 0, -1, 0};
 int dy[4] = {0, 1, 0, -1};
 char maze[MAX][MAX];
 int fire[MAX][MAX];
+int visited[MAX][MAX];
 int r, c;
 queue<pair<int, int>> q;
 
 void bfs()
 {
+    int x = q.front().first;
+    int y = q.front().second;
+
+    fire[x][y] = 0;
+
     while (!q.empty())
     {
-        int x = q.front().first;
-        int y = q.front().second;
+        x = q.front().first;
+        y = q.front().second;
         q.pop();
 
         for (int direction = 0; direction < 4; direction++)
@@ -27,7 +32,7 @@ void bfs()
 
             if (nx < 0 || nx >= r || ny < 0 || ny >= c)
                 continue;
-            if (maze[nx][ny] != '.' || fire[nx][ny])
+            if (maze[nx][ny] == '#' || fire[nx][ny] || maze[nx][ny] == 'F')
                 continue;
 
             fire[nx][ny] = fire[x][y] + 1;
@@ -35,9 +40,10 @@ void bfs()
         }
     }
 }
-void escape(int i,int j)
+void escape(int i, int j)
 {
-    q.push(make_pair(i,j));
+    visited[i][j] = 0;
+    q.push(make_pair(i, j));
 
     while (!q.empty())
     {
@@ -47,7 +53,7 @@ void escape(int i,int j)
 
         if (x == 0 || x == r - 1 || y == 0 || y == c - 1)
         {
-            cout << fire[x][y] + 1 << '\n';
+            cout << visited[x][y] + 1 << '\n';
             return;
         }
 
@@ -58,9 +64,10 @@ void escape(int i,int j)
 
             if (nx < 0 || nx >= r || ny < 0 || ny >= c)
                 continue;
-            if (fire[x][y] >= fire[nx][ny])
+            if (maze[nx][ny] == '#' || visited[x][y] + 1 >= fire[nx][ny] || visited[nx][ny])
                 continue;
-            fire[nx][ny] = fire[x][y] + 1;
+
+            visited[nx][ny] = visited[x][y] + 1;
             q.push(make_pair(nx, ny));
         }
     }
@@ -91,16 +98,15 @@ int main()
             }
         }
     }
-
-    bfs();
-
-    // for(int i=0;i<r;i++)
-    // {
-    //     for(int j=0;j<c;j++)
-    //     cout<<fire[i][j];
-    //     cout<<'\n';
-    // }
-    escape(jx,jy);
+    if (!q.empty())
+        bfs();
+    else
+        for (int i = 0; i < r; i++)
+        {
+            for (int j = 0; j < r; j++)
+                fire[i][j] = 1000001;
+        }
+    escape(jx, jy);
 
     return 0;
 }
