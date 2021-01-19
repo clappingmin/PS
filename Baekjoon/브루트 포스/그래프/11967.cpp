@@ -24,21 +24,6 @@ int bfs(int i, int j)
         int y = q.front().second;
         q.pop();
 
-        // for (int i = 0; i < v[x][y].size(); i++)
-        // {
-        //     int nx = v[x][y][i].first;
-        //     int ny = v[x][y][i].second;
-
-        //     if (check[nx][ny])
-        //         continue;
-
-        //     if (check[nx][ny] == false)
-        //     {
-        //         check[nx][ny] = true;
-        //         q.push(make_pair(nx, ny));
-        //         cnt++;
-        //     }
-        // }
         for (int dir = 0; dir < 4; dir++)
         {
             int nx = x + dx[dir];
