@@ -30,21 +30,23 @@ void bfs(int i, int j, int k)
             cout << "Escaped in " << dist[z][x][y] << " minute(s).\n";
             return;
         }
-
-        for (int dir = 0; dir < 6; dir++)
+        else
         {
-            int nz = z + dz[dir];
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
+            for (int dir = 0; dir < 6; dir++)
+            {
+                int nz = z + dz[dir];
+                int nx = x + dx[dir];
+                int ny = y + dy[dir];
 
-            if (nz < 0 || nz >= l || nx < 0 || nx >= r || ny < 0 || ny >= c)
-                continue;
-            if (map[nz][nx][ny] == '#' || visited[nz][nx][ny])
-                continue;
+                if (nz < 0 || nz >= l || nx < 0 || nx >= r || ny < 0 || ny >= c)
+                    continue;
+                if (map[nz][nx][ny] == '#' || visited[nz][nx][ny])
+                    continue;
 
-            visited[nz][nx][ny] = true;
-            dist[nz][nx][ny] = dist[z][x][y] + 1;
-            q.push(make_pair(make_pair(nz, nx), ny));
+                visited[nz][nx][ny] = true;
+                dist[nz][nx][ny] = dist[z][x][y] + 1;
+                q.push(make_pair(make_pair(nz, nx), ny));
+            }
         }
     }
     cout << "Trapped!\n";
@@ -55,17 +57,18 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    int sz, sx, sy; //상범 시작 위치
-
     while (true)
     {
+        int sz, sx, sy; //상범 시작 위치
+
         cin >> l >> r >> c;
 
         if (l == 0 && r == 0 && c == 0)
             return 0;
 
         memset(visited, false, sizeof(visited));
-
+        memset(dist,0,sizeof(dist));
+        
         for (int i = 0; i < l; i++) //입력
         {
             for (int j = 0; j < r; j++)
@@ -82,7 +85,9 @@ int main()
                 }
             }
         }
+
         bfs(sz, sx, sy);
+
     }
     return 0;
 }
