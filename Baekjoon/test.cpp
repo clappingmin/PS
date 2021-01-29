@@ -1,61 +1,40 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-int l, c;
-vector<char> alpha;
-
 bool check(string res)
 {
-	int mo = 0, ja = 0;
+    int tmp = 0;
 
-	for (int i = 0; i < res.size(); i++)
-	{
-		if (res[i] == 'a' || res[i] == 'i' || res[i] == 'e' || res[i] == 'o' || res[i] == 'u')
-			mo++;
-		else
-			ja++;
-	}
-	if (mo >= 1 && ja >= 2)
-		return true;
-	else
-		false;
+    res.erase(remove(res.begin(),res.end(),' '),res.end());
+
+    cout<<res;
+    return true;
+
 }
-
-void go(int index, string res)
+void go(vector<int> &num, int sum,int index, string res)
 {
-	if (res.length() == l)
-	{
-		if (check(res))
-			cout << res << '\n';
-		return;
-	}
-	if (index >= alpha.size())
-		return;
+    if(index == num.size())
+    {
+        if(check(res))
+    }
 
-	go(index + 1, res + alpha[index]); // 해당 인덱스의 글자가 포함
-	go(index + 1, res);
+    //+일 경우
+    go(num,sum+)
+    
 }
 
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(0);
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
-	cin >> l >> c;
+string res = "1-2 3-4 5+6 7";
 
-	for (int i = 0; i < c; i++)
-	{
-		char ch;
-		cin >> ch;
-		alpha.push_back(ch);
-	}
+    res.erase(remove(res.begin(),res.end(),' '),res.end());
 
-	sort(alpha.begin(), alpha.end());
+cout<<res<<'\n';
 
-	go(0, "");
-
-	return 0;
+    return 0;
 }
