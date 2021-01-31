@@ -6,7 +6,7 @@ using namespace std;
 
 int arr[9];
 bool check[10001];
-int n, m; //1부터 N까지 수를 가지는 m길이의 배열
+int n, m;
 
 void go(int index, vector<int> &input)
 {
