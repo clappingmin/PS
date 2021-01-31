@@ -6,9 +6,9 @@ using namespace std;
 
 int arr[9];
 bool check[10001];
-int n, m; //1부터 N까지 수를 가지는 m길이의 배열
+int n, m;
 
-void go(int index, vector<int> &input)
+void go(int index, int num, vector<int> &input)
 {
     if (index == m)
     {
@@ -18,15 +18,11 @@ void go(int index, vector<int> &input)
         return;
     }
 
-    for (int i = 0; i < n; i++)
+    for (int i = num; i < n; i++)
     {
-        if (!check[input[i]])
-        {
-            arr[index] = input[i];
-            check[input[i]] = true;
-            go(index + 1, input);
-            check[input[i]] = false;
-        }
+        arr[index] = input[i];
+        num = i;
+        go(index + 1, num, input);
     }
 }
 
@@ -44,7 +40,7 @@ int main()
 
     sort(input.begin(), input.end());
 
-    go(0, input);
+    go(0, 0, input);
 
     return 0;
 }

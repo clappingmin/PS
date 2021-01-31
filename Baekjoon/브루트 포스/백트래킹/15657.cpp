@@ -4,39 +4,43 @@
 
 using namespace std;
 
-vector<int> input;
-vector<int> output;
+int arr[9];
+bool check[10001];
+int n, m;
 
-void go(int index, int start, int n, int m)
+void go(int index, int num, vector<int> &input)
 {
     if (index == m)
     {
         for (int i = 0; i < m; i++)
-            printf("%d ", output[i]);
-        printf("\n");
+            cout << arr[i] << ' ';
+        cout << '\n';
         return;
     }
-    for (int i = start; i < n; i++)
+
+    for (int i = num; i < n; i++)
     {
-        output[index] = input[i];
-        go(index + 1, i, n, m);
+        arr[index] = input[i];
+        num = i;
+        go(index + 1, num, input);
     }
 }
+
 int main()
 {
-    int n, m;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
-    scanf("%d%d", &n, &m);
+    cin >> n >> m;
 
-    input.resize(n);
-    output.resize(m);
+    vector<int> input(n);
 
     for (int i = 0; i < n; i++)
         cin >> input[i];
 
     sort(input.begin(), input.end());
 
-    go(0, 0, n, m);
+    go(0, 0, input);
 
     return 0;
 }

@@ -4,8 +4,9 @@
 
 using namespace std;
 
-int arr[8];
 int n, m;
+int arr[9];
+bool check[9];
 
 void go(int index, vector<int> &input)
 {
@@ -16,11 +17,21 @@ void go(int index, vector<int> &input)
         cout << '\n';
         return;
     }
+    int prev_num = -1;
 
     for (int i = 0; i < n; i++)
     {
-        arr[index] = input[i];
-        go(index + 1, input);
+        if (!check[i] && prev_num != input[i])
+        {
+            if (index == 0 || arr[index - 1] <= input[i])
+            {
+                arr[index] = input[i];
+                check[i] = true;
+                prev_num = input[i];
+                go(index + 1, input);
+                check[i] = false;
+            }
+        }
     }
 }
 
@@ -38,7 +49,7 @@ int main()
 
     sort(input.begin(), input.end());
 
-    go(0, input);
+    go(0,input);
 
     return 0;
 }
