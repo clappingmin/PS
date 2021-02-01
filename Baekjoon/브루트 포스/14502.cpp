@@ -80,13 +80,13 @@ void countblankspace()
 }
 void makewall(int cnt)
 {
-    if (cnt == 3)
+    if (cnt == 3)  
     {
         memset(check, false, sizeof(check));
 
-        mapcopy();
-        spreadvirus();
-        countblankspace();
+        mapcopy();      //2. 맵을 복사한다.
+        spreadvirus();  //3. 복사한 맵에 바이러스 뿌리기
+        countblankspace();  //4. 빈 공간 검사하기
 
         return;
     }
@@ -116,7 +116,7 @@ int main()
             cin >> map[i][j];
 
 
-    makewall(0);
+    makewall(0);    //1. 벽세우기
 
     cout << res << '\n';
 
