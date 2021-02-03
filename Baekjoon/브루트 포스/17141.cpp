@@ -43,7 +43,7 @@ void spread(deque<pair<int, int>> q) // 2. 바이러스 퍼뜨리기
             q.push_back(make_pair(nx, ny));
         }
     }
-}
+} 
 
 int complete() // 3. 빈 칸 없이 다 퍼진지 확인
 {
