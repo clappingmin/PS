@@ -1,88 +1,117 @@
 #include <iostream>
+#include <queue>
+#include <algorithm>
+#include <cstring> //memset
 
 using namespace std;
 
-int n, k, res = 1;
-int dist[100001];
-bool check[100001];
-
-void go(int now, int cnt)
+const int INF = 987654321;
+const int MAX = 100;
+typedef struct
 {
-    if (now == k)
+    int y, x;
+} Dir;
+
+Dir moveDir[4] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+int N;
+int graph[MAX][MAX];
+bool visited[MAX][MAX];
+
+void DFS(int y, int x, int cnt)
+{
+
+    visited[y][x] = true;
+    graph[y][x] = cnt; //몇번 섬인지 표시
+
+    for (int i = 0; i < 4; i++)
     {
-        dist[cnt] += 1;
-        return;
-    }
+        int nextY = y + moveDir[i].y;
+        int nextX = x + moveDir[i].x;
 
-    for (int i = 0; i < 3; i++)
-    {
-        int tmp = now;
-        bool flag = false;
-        if (i == 0)
-        {
-            cout << now << " 0" << '\n';
-            if (2 * now <= 100000 && check[2 * now] == false)
-            {
-                tmp = 2 * now;
-                flag = true;
-            }
-        }
-
-        else if (i == 1)
-        {
-            cout << now << " 1" << '\n';
-            if (now + 1 <= 100000 && check[now + 1] == false)
-            {
-                tmp = now + 1;
-                flag = true;
-            }
-        }
-
-        else if (i == 2)
-        {
-                        cout << now << " 2" << '\n';
-            if (now - 1 >= 0 && check[now - 1] == false)
-            {
-                tmp = now - 1;
-                flag = true;
-            }
-        }
-        if (flag == true)
-        {
-            check[tmp] = true;
-            go(tmp, cnt + 1);
-            check[tmp] = false;
-        }
+        if (0 <= nextY && nextY < N && 0 <= nextX && nextX < N)
+            if (graph[nextY][nextX] && !visited[nextY][nextX])
+                DFS(nextY, nextX, cnt);
     }
 }
 
-int main()
+int BFS(int cnt)
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
+    queue<pair<int, int>> q;
+    //우선 해당 섬의 좌표를 다 큐에 넣는다
 
-    cin >> n >> k;
-
-    if (n != k)
-    {
-        check[n] = true;
-        go(n, 0);
-
-        for (int i = 0; i <= 100000; i++)
-        {
-            if (dist[i] != 0)
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            if (graph[i][j] == cnt)
             {
-                cout << i << '\n';
-                cout << dist[i] << '\n';
-                break;
+                visited[i][j] = true;
+                q.push(make_pair(i, j));
+            }
+
+    int result = 0;
+    while (!q.empty())
+    {
+
+        int curSize = q.size();
+        //현재 큐에 있는 칸으로부터 한칸씩 전진해본다
+
+        for (int i = 0; i < curSize; i++)
+        {
+            int y = q.front().first;
+            int x = q.front().second;
+            q.pop();
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nextY = y + moveDir[i].y;
+                int nextX = x + moveDir[i].x;
+
+                //범위 내에 있고
+                if (0 <= nextY && nextY < N && 0 <= nextX && nextX < N)
+                {
+                    //다른 섬에 도착할 경우 반환
+                    if (graph[nextY][nextX] && graph[nextY][nextX] != cnt)
+                        return result;
+
+                    //아직 방문하지 않은 바다칸이면 방문했다고 표시 후 큐에 넣는다
+                    else if (!graph[nextY][nextX] && !visited[nextY][nextX])
+                    {
+                        visited[nextY][nextX] = true;
+                        q.push(make_pair(nextY, nextX));
+                    }
+                }
             }
         }
+        result++;
     }
-    else if (n == k)
+}
+
+int main(void)
+{
+    cin >> N;
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            cin >> graph[i][j];
+
+    int cnt = 1;
+
+    //DFS를 통해 섬 표시
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            if (graph[i][j] && !visited[i][j])
+                DFS(i, j, cnt++);
+
+    int result = INF;
+
+    //각 섬에서 제일 가까운 섬까지 다리 놓을 때 최소 길이 구한다
+
+    for (int i = 1; i < cnt; i++)
     {
-        cout << 0 << '\n';
-        cout << 0 << '\n';
+        memset(visited, false, sizeof(visited));
+        result = min(result, BFS(i));
     }
+
+    cout << result << endl;
 
     return 0;
 }
