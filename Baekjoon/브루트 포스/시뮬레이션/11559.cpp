@@ -100,7 +100,7 @@ int main()
             pop.pop();
         }
 
-        res+=1;
+        res += 1;
     }
 
     cout << res << '\n';
