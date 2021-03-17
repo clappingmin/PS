@@ -1,117 +1,99 @@
 #include <iostream>
-#include <queue>
-#include <algorithm>
-#include <cstring> //memset
 
 using namespace std;
 
-const int INF = 987654321;
-const int MAX = 100;
-typedef struct
+int n, m; //map 크기
+int map[51][51];
+
+pair<pair<int, int>, int> Robot; //로봇 초기 위치, 방향
+
+int dx[4] = {-1, 0, 1, 0};
+int dy[4] = {0, 1, 0, -1};
+
+int Turn_direction(int d)
 {
-    int y, x;
-} Dir;
-
-Dir moveDir[4] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-int N;
-int graph[MAX][MAX];
-bool visited[MAX][MAX];
-
-void DFS(int y, int x, int cnt)
-{
-
-    visited[y][x] = true;
-    graph[y][x] = cnt; //몇번 섬인지 표시
-
-    for (int i = 0; i < 4; i++)
-    {
-        int nextY = y + moveDir[i].y;
-        int nextX = x + moveDir[i].x;
-
-        if (0 <= nextY && nextY < N && 0 <= nextX && nextX < N)
-            if (graph[nextY][nextX] && !visited[nextY][nextX])
-                DFS(nextY, nextX, cnt);
-    }
+    if (d == 0)
+        return 3;
+    else if (d == 1)
+        return 0;
+    else if (d == 2)
+        return 1;
+    else if (d == 3)
+        return 2;
 }
 
-int BFS(int cnt)
+void Solution()
 {
-    queue<pair<int, int>> q;
-    //우선 해당 섬의 좌표를 다 큐에 넣는다
+    int x = Robot.first.first;
+    int y = Robot.first.second;
+    int d = Robot.second;
+    int room = 0; //청소한 방의 개수
 
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
-            if (graph[i][j] == cnt)
-            {
-                visited[i][j] = true;
-                q.push(make_pair(i, j));
-            }
+    map[x][y] = 2; //시작지점 방 청소
+    room++;
 
-    int result = 0;
-    while (!q.empty())
+    int nx, ny, nd; //다음 청소 위치, 방향
+
+    while (1)
     {
+        int tmp_d = d;
+        bool can_clean = false;
+        int cannotclean = 0;
 
-        int curSize = q.size();
-        //현재 큐에 있는 칸으로부터 한칸씩 전진해본다
-
-        for (int i = 0; i < curSize; i++)
+        for (int i = 0; i < 4; i++)
         {
-            int y = q.front().first;
-            int x = q.front().second;
-            q.pop();
+            nd = Turn_direction(d);
+            nx = x + dx[nd];
+            ny = y + dy[nd];
 
-            for (int i = 0; i < 4; i++)
+            if (map[nx][ny] == 0) //청소를 할 수 있는 경우
             {
-                int nextY = y + moveDir[i].y;
-                int nextX = x + moveDir[i].x;
-
-                //범위 내에 있고
-                if (0 <= nextY && nextY < N && 0 <= nextX && nextX < N)
-                {
-                    //다른 섬에 도착할 경우 반환
-                    if (graph[nextY][nextX] && graph[nextY][nextX] != cnt)
-                        return result;
-
-                    //아직 방문하지 않은 바다칸이면 방문했다고 표시 후 큐에 넣는다
-                    else if (!graph[nextY][nextX] && !visited[nextY][nextX])
-                    {
-                        visited[nextY][nextX] = true;
-                        q.push(make_pair(nextY, nextX));
-                    }
-                }
+                can_clean = true;
+                break;
+            }
+            else if (map[nx][ny] == 1 || map[nx][ny] == 2 || nx < 0 || ny < 0 || nx >= n || ny >= m)
+            {
+                //벽이거나 이미 청소를 했거나 범위를 벗어난 경우
+                d = nd;
+                cannotclean++;
             }
         }
-        result++;
+        if (can_clean == true)
+        {
+            map[nx][ny] = 2;
+            room++;
+            d = nd;
+        }
+        if (cannotclean == 4)
+        {
+            nx = x - dx[tmp_d];
+            ny = y - dy[tmp_d]; //후진
+            d = tmp_d;
+
+            if (map[nx][ny] == 1 || nx < 0 || ny < 0 || nx >= n || ny >= m)
+            { //후진할 공간이 벽이거나 범위를 벗어난 경우
+                break;
+            }
+        }
+        x = nx;
+        y = ny;
     }
+    cout << room << '\n';
 }
 
-int main(void)
+int main()
 {
-    cin >> N;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
-            cin >> graph[i][j];
+    cin >> n >> m;
+    cin >> Robot.first.first >> Robot.first.second >> Robot.second;
 
-    int cnt = 1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            cin >> map[i][j];
 
-    //DFS를 통해 섬 표시
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
-            if (graph[i][j] && !visited[i][j])
-                DFS(i, j, cnt++);
-
-    int result = INF;
-
-    //각 섬에서 제일 가까운 섬까지 다리 놓을 때 최소 길이 구한다
-
-    for (int i = 1; i < cnt; i++)
-    {
-        memset(visited, false, sizeof(visited));
-        result = min(result, BFS(i));
-    }
-
-    cout << result << endl;
+    Solution();
 
     return 0;
 }
