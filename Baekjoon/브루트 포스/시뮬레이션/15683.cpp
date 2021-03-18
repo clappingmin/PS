@@ -1,208 +1,228 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <cmath>
 
 using namespace std;
 
-int n, m, cctv_num;
-int res = 987654321;
-int map[8][8];
-int tempmap[8][8];
-vector<pair<pair<int, int>, pair<int, int>>> cctv; //cctv좌표, cctv번호, 방향
+int N, M;
+int map[8][8], tmp_map[8][8];
+int empty_cnt = 987654321;
+int cctv_cnt;
 
-void copymap()
+vector<pair<pair<int, int>, pair<int, int>>> cctv; //좌표, 번호, 방향
+
+void Copy_map()
 {
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            tempmap[i][j] = map[i][j];
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < M; j++)
+            tmp_map[i][j] = map[i][j];
 }
 
-void right(int x, int y)
+void up(int r, int c)
 {
-    for (int i = y + 1; i < m; i++)
+    for (int i = r - 1; i >= 0; i--)
     {
-        if (tempmap[x][i] == 6)
+        if (tmp_map[i][c] == 6)
             break;
-        if (tempmap[x][i] >= 1 && tempmap[x][i] >= 6)
+
+        else if (1 <= tmp_map[i][c] && tmp_map[i][c] <= 5)
             continue;
-        tempmap[x][i] = -1;
+
+        tmp_map[i][c] = -1;
     }
 }
-void left(int x, int y)
+void down(int r, int c)
 {
-    for (int i = y - 1; i >= 0; i--)
+    for (int i = r + 1; i < N; i++)
     {
-        if (tempmap[x][i] == 6)
+        if (tmp_map[i][c] == 6)
             break;
-        if (tempmap[x][i] >= 1 && tempmap[x][i] >= 6)
+
+        else if (1 <= tmp_map[i][c] && tmp_map[i][c] <= 5)
             continue;
-        tempmap[x][i] = -1;
+
+        tmp_map[i][c] = -1;
     }
 }
-void up(int x, int y)
+void left(int r, int c)
 {
-    for (int i = x - 1; i >= 0; i--)
+    for (int i = c - 1; i >= 0; i--)
     {
-        if (tempmap[i][y] == 6)
+        if (tmp_map[r][i] == 6)
             break;
-        if (tempmap[i][y] >= 1 && tempmap[i][y] >= 6)
+        else if (1 <= tmp_map[r][i] && tmp_map[r][i] <= 5)
             continue;
-        tempmap[i][y] = -1;
+
+        tmp_map[r][i] = -1;
     }
 }
-void down(int x, int y)
+void right(int r, int c)
 {
-    for (int i = x + 1; i < n; i++)
+    for (int i = c + 1; i < M; i++)
     {
-        if (tempmap[i][y] == 6)
+        if (tmp_map[r][i] == 6)
             break;
-        if (tempmap[i][y] >= 1 && tempmap[i][y] >= 6)
+        else if (1 <= tmp_map[r][i] && tmp_map[r][i] <= 5)
             continue;
-        tempmap[i][y] = -1;
+
+        tmp_map[r][i] = -1;
     }
 }
 
-int count_area()
+int Count_empty()
 {
-    int cnt = 0;
-    for (int i = 0; i < n; i++)
+    int res = 0;
+    for (int i = 0; i < N; i++)
     {
-        for (int j = 0; j < m; j++)
-            if (tempmap[i][j] == 0)
-                cnt++;
-    }
-    return cnt;
-}
-void check_area()
-{
-    copymap();
-    for (int i = 0; i < cctv_num; i++)
-    {
-        if (cctv[i].second.first == 1)
+        for (int j = 0; j < M; j++)
         {
-            if (cctv[i].second.second == 0)
-                right(cctv[i].first.first, cctv[i].first.second);
-            else if (cctv[i].second.second == 1)
-                left(cctv[i].first.first, cctv[i].first.second);
-            else if (cctv[i].second.second == 2)
-                up(cctv[i].first.first, cctv[i].first.second);
-            else if (cctv[i].second.second == 3)
-                down(cctv[i].first.first, cctv[i].first.second);
-        }
-        if (cctv[i].second.first == 2)
-        {
-            if (cctv[i].second.second == 0 || cctv[i].second.second == 1)
-            {
-                right(cctv[i].first.first, cctv[i].first.second);
-                left(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 2 || cctv[i].second.second == 3)
-            {
-                up(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-            }
-        }
-
-        if (cctv[i].second.first == 3)
-        {
-            if (cctv[i].second.second == 0)
-            {
-                right(cctv[i].first.first, cctv[i].first.second);
-                up(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 1)
-            {
-                up(cctv[i].first.first, cctv[i].first.second);
-                left(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 2)
-            {
-                left(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 3)
-            {
-                right(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-            }
-        }
-        if (cctv[i].second.first == 4)
-        {
-            if (cctv[i].second.second == 0)
-            {
-                right(cctv[i].first.first, cctv[i].first.second);
-                up(cctv[i].first.first, cctv[i].first.second);
-                left(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 1)
-            {
-                up(cctv[i].first.first, cctv[i].first.second);
-                left(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 2)
-            {
-                left(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-                right(cctv[i].first.first, cctv[i].first.second);
-            }
-            else if (cctv[i].second.second == 3)
-            {
-                right(cctv[i].first.first, cctv[i].first.second);
-                down(cctv[i].first.first, cctv[i].first.second);
-                up(cctv[i].first.first, cctv[i].first.second);
-            }
-        }
-        if (cctv[i].second.first == 5)
-        {
-            right(cctv[i].first.first, cctv[i].first.second);
-            left(cctv[i].first.first, cctv[i].first.second);
-            up(cctv[i].first.first, cctv[i].first.second);
-            down(cctv[i].first.first, cctv[i].first.second);
+            if (tmp_map[i][j] == 0)
+                res += 1;
         }
     }
+    return res;
 }
 
-void direction(int cnt)
+void Setting_cctv()
 {
-    if (cnt == cctv_num)
+    Copy_map();
+
+    for (int i = 0; i < cctv_cnt; i++)
     {
-        check_area();
-        res = min(res, count_area());
+        int cctv_num = cctv[i].second.first;
+        int cctv_dir = cctv[i].second.second;
+        int x = cctv[i].first.first;
+        int y = cctv[i].first.second;
+
+        if (cctv_num == 1)
+        {
+            if (cctv_dir == 0)
+                up(x, y);
+            else if (cctv_dir == 1)
+                down(x, y);
+            else if (cctv_dir == 2)
+                left(x, y);
+            else if (cctv_dir == 3)
+                right(x, y);
+        }
+        else if (cctv_num == 2)
+        {
+            if (cctv_dir == 0 || cctv_dir == 1)
+            {
+                up(x, y);
+                down(x, y);
+            }
+            else if (cctv_dir == 2 || cctv_dir == 3)
+            {
+                left(x, y);
+                right(x, y);
+            }
+        }
+        else if (cctv_num == 3)
+        {
+            if (cctv_dir == 0)
+            {
+                up(x, y);
+                left(x, y);
+            }
+            else if (cctv_dir == 1)
+            {
+                up(x, y);
+                right(x, y);
+            }
+            else if (cctv_dir == 2)
+            {
+                down(x, y);
+                left(x, y);
+            }
+            else if (cctv_dir == 3)
+            {
+                down(x, y);
+                right(x, y);
+            }
+        }
+        else if (cctv_num == 4)
+        {
+            if (cctv_dir == 0)
+            {
+                up(x, y);
+                left(x, y);
+                right(x, y);
+            }
+            else if (cctv_dir == 1)
+            {
+                up(x, y);
+                left(x, y);
+                down(x, y);
+            }
+            else if (cctv_dir == 2)
+            {
+                down(x, y);
+                left(x, y);
+                right(x, y);
+            }
+            else if (cctv_dir == 3)
+            {
+                up(x, y);
+                down(x, y);
+                right(x, y);
+            }
+        }
+        else if (cctv_num == 5)
+        {
+
+            up(x, y);
+            down(x, y);
+            left(x, y);
+            right(x, y);
+        }
+    }
+}
+
+void Select_direction(int cnt)
+{
+    if (cnt == cctv_cnt)
+    {
+        Setting_cctv();
+        empty_cnt = min(empty_cnt, Count_empty());
         return;
     }
-    cctv[cnt].second.second = 0; //cctv가 0번 방향일 때
-    direction(cnt + 1);
 
-    cctv[cnt].second.second = 1; //cctv가 1번 방향일 때
-    direction(cnt + 1);
+    cctv[cnt].second.second = 0;
+    Select_direction(cnt + 1);
 
-    cctv[cnt].second.second = 2; //cctv가 2번 방향일 때
-    direction(cnt + 1);
+    cctv[cnt].second.second = 1;
+    Select_direction(cnt + 1);
 
-    cctv[cnt].second.second = 3; //cctv가 3번 방향일 때
-    direction(cnt + 1);
+    cctv[cnt].second.second = 2;
+    Select_direction(cnt + 1);
+
+    cctv[cnt].second.second = 3;
+    Select_direction(cnt + 1);
 }
+
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> n >> m;
+    cin >> N >> M;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
-        for (int j = 0; j < m; j++)
+        for (int j = 0; j < M; j++)
         {
             cin >> map[i][j];
 
-            if (map[i][j] != 0 && map[i][j] != 6)
-                cctv.push_back(make_pair(make_pair(i, j), make_pair(map[i][j], -1)));
+            if (1 <= map[i][j] && map[i][j] <= 5)
+                cctv.push_back({{i, j}, {map[i][j], -1}});
         }
     }
-    cctv_num = cctv.size();
+    cctv_cnt = cctv.size();
 
-    direction(0);
+    Select_direction(0);
 
-    cout << res << '\n';
+    cout << empty_cnt << '\n';
+
+    return 0;
 }
