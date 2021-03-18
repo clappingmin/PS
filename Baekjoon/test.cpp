@@ -1,204 +1,108 @@
 #include <iostream>
 #include <vector>
+#include <queue>
+#include <cstring>
 #include <cmath>
+#define MAX 10 + 1
 
 using namespace std;
 
-int N, M;
-int map[8][8], tmp_map[8][8];
-int empty_cnt = 987654321;
-int cctv_cnt;
+int N;
+int person[MAX]; //인구수 저장
+bool connected[MAX][MAX];
+bool selected[MAX];
+bool visited[MAX];
+int res = 987654321;
 
-vector<pair<pair<int, int>, pair<int, int>>> cctv; //좌표, 번호, 방향
-
-void Copy_map()
+void Calculation()
 {
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < M; j++)
-            tmp_map[i][j] = map[i][j];
+    int sum_a = 0, sum_b = 0, diff;
+
+    for (int i = 1; i <= N; i++)
+    {
+        if (selected[i] == true)
+            sum_a += person[i];
+        else
+            sum_b += person[i];
+    }
+    diff = abs(sum_a - sum_b);
+    res = min(res, diff);
 }
 
-void up(int r, int c)
+bool Check_connection(vector<int> v, bool t)
 {
-    for (int i = r - 1; i >= 0; i--)
-    {
-        if (tmp_map[i][c] == 6)
-            break;
+    memset(visited, false, sizeof(visited));
+    queue<int> q;
+    q.push(v.front());
+    visited[v.front()] = true;
+    int cnt = 1;
 
-        else if (1 <= tmp_map[i][c] && tmp_map[i][c] <= 5)
+    while (!q.empty())
+    {
+        int x = q.front();
+        q.pop();
+
+        for (int i = 1; i <= N; i++)
+        {
+            if (connected[x][i] == true && selected[i] == t && visited[i] == false)
+            {
+                visited[i] = true;
+                cnt += 1;
+                q.push(i);
+            }
+        }
+    }
+    if (v.size() == cnt)
+        return true;
+
+    return false;
+}
+
+bool Check()
+{
+    vector<int> A, B;
+
+    for (int i = 1; i <= N; i++)
+    {
+        if (selected[i] == true)
+            A.push_back(i);
+        else
+            B.push_back(i);
+    }
+
+    //조건 1.선거구는 지역을 최소 1개 이상 갖는다.
+    if (A.size() == 0 || B.size() == 0)
+        return false;
+
+    //조건 2. 같은 선거구의 지역들은 서로 이어져 있다.
+    if (Check_connection(A, true) == false)
+        return false;
+
+    if (Check_connection(B, false) == false)
+        return false;
+
+    return true;
+}
+
+void DFS(int index, int cnt) //1.선거구 조합
+{
+    if (cnt >= 1)
+    {
+        if (Check()) //2.조건이 맞는지 확인한다.
+        {
+            Calculation(); //3. 조건이 맞을 경우 인구수 차이 계산
+        }
+    }
+
+    for (int i = index; i <= N; i++)
+    {
+        if (selected[i] == true)
             continue;
 
-        tmp_map[i][c] = -1;
+        selected[i] = true;
+        DFS(i, cnt + 1);
+        selected[i] = false;
     }
-}
-void down(int r, int c)
-{
-    for (int i = r + 1; i < N; i++)
-    {
-        if (tmp_map[i][c] == 6)
-            break;
-
-        else if (1 <= tmp_map[i][c] && tmp_map[i][c] <= 5)
-            continue;
-
-        tmp_map[i][c] = -1;
-    }
-}
-void left(int r, int c)
-{
-    for (int i = c - 1; i >= 0; i--)
-    {
-        if (tmp_map[r][i] == 6)
-            break;
-        else if (1 <= tmp_map[r][i] && tmp_map[r][i] <= 5)
-            continue;
-
-        tmp_map[r][i] = -1;
-    }
-}
-void right(int r, int c)
-{
-    for (int i = c + 1; i < M; i++)
-    {
-        if (tmp_map[r][i] == 6)
-            break;
-        else if (1 <= tmp_map[r][i] && tmp_map[r][i] <= 5)
-            continue;
-
-        tmp_map[r][i] = -1;
-    }
-}
-
-int Count_empty()
-{
-    int res = 0;
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < M; j++)
-        {
-            if (tmp_map[i][j] == 0)
-                res += 1;
-        }
-    }
-    return res;
-}
-
-void Setting_cctv()
-{
-    Copy_map();
-
-    for (int i = 0; i < cctv_cnt; i++)
-    {
-        int cctv_num = cctv[i].second.first;
-        int cctv_dir = cctv[i].second.second;
-        int x = cctv[i].first.first;
-        int y = cctv[i].first.second;
-
-        if (cctv_num == 1)
-        {
-            if (cctv_dir == 0)
-                up(x, y);
-            else if (cctv_dir == 1)
-                down(x, y);
-            else if (cctv_dir == 2)
-                left(x, y);
-            else if (cctv_dir == 3)
-                right(x, y);
-        }
-        else if (cctv_num == 2)
-        {
-            if (cctv_dir == 0 || cctv_dir == 1)
-            {
-                up(x, y);
-                down(x, y);
-            }
-            else if (cctv_dir == 2 || cctv_dir == 3)
-            {
-                left(x, y);
-                right(x, y);
-            }
-        }
-        else if (cctv_num == 3)
-        {
-            if (cctv_dir == 0)
-            {
-                up(x, y);
-                left(x, y);
-            }
-            else if (cctv_dir == 1)
-            {
-                up(x, y);
-                right(x, y);
-            }
-            else if (cctv_dir == 2)
-            {
-                down(x, y);
-                left(x, y);
-            }
-            else if (cctv_dir == 3)
-            {
-                down(x, y);
-                right(x, y);
-            }
-        }
-        else if (cctv_num == 4)
-        {
-            if (cctv_dir == 0)
-            {
-                up(x, y);
-                left(x, y);
-                right(x, y);
-            }
-            else if (cctv_dir == 1)
-            {
-                up(x, y);
-                left(x, y);
-                down(x, y);
-            }
-            else if (cctv_dir == 2)
-            {
-                down(x, y);
-                left(x, y);
-                right(x, y);
-            }
-            else if (cctv_dir == 3)
-            {
-                up(x, y);
-                down(x, y);
-                right(x, y);
-            }
-        }
-        else if (cctv_num == 5)
-        {
-
-            up(x, y);
-            down(x, y);
-            left(x, y);
-            right(x, y);
-        }
-    }
-}
-
-void Select_direction(int cnt)
-{
-    if (cnt == cctv_cnt)
-    {
-        Setting_cctv();
-        empty_cnt = min(empty_cnt, Count_empty());
-        return;
-    }
-
-    cctv[cnt].second.second = 0;
-    Select_direction(cnt + 1);
-
-    cctv[cnt].second.second = 1;
-    Select_direction(cnt + 1);
-
-    cctv[cnt].second.second = 2;
-    Select_direction(cnt + 1);
-
-    cctv[cnt].second.second = 3;
-    Select_direction(cnt + 1);
 }
 
 int main()
@@ -206,23 +110,31 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> N >> M;
+    cin >> N;
+    for (int i = 1; i <= N; i++)
+        cin >> person[i];
 
-    for (int i = 0; i < N; i++)
+    for (int i = 1; i <= N; i++)
     {
-        for (int j = 0; j < M; j++)
-        {
-            cin >> map[i][j];
+        int cnt;
+        cin >> cnt;
 
-            if (1 <= map[i][j] && map[i][j] <= 5)
-                cctv.push_back({{i, j}, {map[i][j], -1}});
+        for (int j = 0; j < cnt; j++)
+        {
+            int c;
+            cin >> c;
+
+            connected[i][c] = true;
+            connected[c][i] = true;
         }
     }
-    cctv_cnt = cctv.size();
 
-    Select_direction(0);
+    DFS(1, 0); //1. 선거구 조합
 
-    cout << empty_cnt << '\n';
+    if (res == 987654321)
+        cout << -1 << '\n';
+    else
+        cout << res << '\n';
 
     return 0;
 }
