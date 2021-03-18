@@ -1,91 +1,119 @@
 #include <iostream>
+#include <vector>
 #include <queue>
-#include <math.h>
+#include <cmath>
+#include <cstring>
 
 using namespace std;
 
-int N, L, R;
-int map[50][50];
-int visited[50][50];
-int th = 0;
-bool check = true;
+int N, M;
+int time, res = 987654321;
+int map[50][50], tmp[50][50];
+int check_v[2501];
+
+vector<pair<int, int>> virus, v;
 
 int dx[4] = {-1, 0, 1, 0};
 int dy[4] = {0, 1, 0, -1};
 
-queue<pair<int, int>> pos; //연합국가 저장
-
-void BFS()
+void Spread_virus()
 {
     queue<pair<int, int>> q;
-    while (check)
+    time = 0;
+
+    for (int i = 0; i < v.size(); i++)
     {
-        check = false;
-        th++;
+        tmp[v[i].first][v[i].second] = 0;
+        q.push(v[i]);
+    }
 
-        for (int i = 0; i < N; i++)
+    while (!q.empty())
+    {
+        int x = q.front().first;
+        int y = q.front().second;
+        q.pop();
+
+        for (int dir = 0; dir < 4; dir++)
         {
-            for (int j = 0; j < N; j++)
-            {
-                if (visited[i][j] == th)
-                    continue;
+            int nx = x + dx[dir];
+            int ny = y + dy[dir];
 
-                int sum = map[i][j];
-                q.push({i, j});
-                pos.push({i, j});
-                visited[i][j] = th;
+            if (nx < 0 || ny < 0 || nx >= N || ny >= N)
+                continue;
+            if (map[nx][ny] == 1 || tmp[nx][ny] != -1)
+                //벽이거나 이미 방문 했으면
+                continue;
 
-                while (!q.empty())
-                {
-                    int x = q.front().first;
-                    int y = q.front().second;
-                    q.pop();
+            tmp[nx][ny] = tmp[x][y] + 1;
+            q.push({nx, ny});
 
-                    for (int dir = 0; dir < 4; dir++)
-                    {
-                        int nx = x + dx[dir];
-                        int ny = y + dy[dir];
-
-                        if (nx < 0 || ny < 0 || nx >= N || ny >= N)
-                            continue;
-
-                        if (visited[nx][ny] == th || abs(map[x][y] - map[nx][ny]) < L || abs(map[x][y] - map[nx][ny]) > R)
-                            continue;
-
-                        q.push({nx, ny});
-                        pos.push({nx, ny});
-                        sum += map[nx][ny];
-                        visited[nx][ny] = th;
-                        check = true;
-                    }
-                }
-
-                int avr = sum / pos.size();
-
-                while (!pos.empty())
-                {
-                    map[pos.front().first][pos.front().second] = avr;
-                    pos.pop();
-                }
-            }
+            if (time < tmp[nx][ny])
+                time = tmp[nx][ny];
         }
+    }
+}
+
+bool Check()
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            if (map[i][j] != 1 && tmp[i][j] == -1)
+                return false;
+        }
+    }
+    return true;
+}
+
+void Select(int index, int cnt)
+{
+    if (cnt == M)
+    {
+        memset(tmp, -1, sizeof(tmp));
+        Spread_virus();
+
+        if (Check())
+        {
+            res = min(res, time);
+        }
+
+        return;
+    }
+
+    for (int i = index; i < virus.size(); i++)
+    {
+        if (check_v[i] == true)
+            continue;
+
+        check_v[i] = true;
+        v.push_back(virus[i]);
+
+        Select(i, cnt + 1);
+
+        check_v[i] = false;
+        v.pop_back();
     }
 }
 
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-
-    cin >> N >> L >> R;
+    cin >> N >> M;
 
     for (int i = 0; i < N; i++)
+    {
         for (int j = 0; j < N; j++)
+        {
             cin >> map[i][j];
+            if (map[i][j] == 2)
+                virus.push_back({i, j});
+        }
+    }
 
-    BFS();
+    Select(0, 0);
 
-    cout << th - 1;
-
-    return 0;
+    if (res == 987654321)
+        cout << -1 << '\n';
+    else
+        cout << res << '\n';
 }
