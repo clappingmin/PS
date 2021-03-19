@@ -29,12 +29,10 @@ int main(void)
         dq.push_back(sushi[i]);
 
         if (!sushiKind[sushi[i]]++) 
-        {
             cnt++;
-        }
 
-        result = max(result, cnt);
     }
+    result = max(result, cnt);
 
     //슬라이딩 윈도우 기법
     for (int i = 0; i < N - 1; i++)

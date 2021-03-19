@@ -1,140 +1,65 @@
 #include <iostream>
-#include <vector>
-#include <queue>
-#include <cstring>
-#include <cmath>
-#define MAX 10 + 1
+#include <deque>
+#include <algorithm>
+#define MAX 3000000
 
 using namespace std;
 
-int N;
-int person[MAX]; //인구수 저장
-bool connected[MAX][MAX];
-bool selected[MAX];
-bool visited[MAX];
-int res = 987654321;
-
-void Calculation()
-{
-    int sum_a = 0, sum_b = 0, diff;
-
-    for (int i = 1; i <= N; i++)
-    {
-        if (selected[i] == true)
-            sum_a += person[i];
-        else
-            sum_b += person[i];
-    }
-    diff = abs(sum_a - sum_b);
-    res = min(res, diff);
-}
-
-bool Check_connection(vector<int> v, bool t)
-{
-    memset(visited, false, sizeof(visited));
-    queue<int> q;
-    q.push(v.front());
-    visited[v.front()] = true;
-    int cnt = 1;
-
-    while (!q.empty())
-    {
-        int x = q.front();
-        q.pop();
-
-        for (int i = 1; i <= N; i++)
-        {
-            if (connected[x][i] == true && selected[i] == t && visited[i] == false)
-            {
-                visited[i] = true;
-                cnt += 1;
-                q.push(i);
-            }
-        }
-    }
-    if (v.size() == cnt)
-        return true;
-
-    return false;
-}
-
-bool Check()
-{
-    vector<int> A, B;
-
-    for (int i = 1; i <= N; i++)
-    {
-        if (selected[i] == true)
-            A.push_back(i);
-        else
-            B.push_back(i);
-    }
-
-    //조건 1.선거구는 지역을 최소 1개 이상 갖는다.
-    if (A.size() == 0 || B.size() == 0)
-        return false;
-
-    //조건 2. 같은 선거구의 지역들은 서로 이어져 있다.
-    if (Check_connection(A, true) == false)
-        return false;
-
-    if (Check_connection(B, false) == false)
-        return false;
-
-    return true;
-}
-
-void DFS(int index, int cnt) //1.선거구 조합
-{
-    if (cnt >= 1)
-    {
-        if (Check()) //2.조건이 맞는지 확인한다.
-        {
-            Calculation(); //3. 조건이 맞을 경우 인구수 차이 계산
-        }
-    }
-
-    for (int i = index; i <= N; i++)
-    {
-        if (selected[i] == true)
-            continue;
-
-        selected[i] = true;
-        DFS(i, cnt + 1);
-        selected[i] = false;
-    }
-}
+int N, D, K, C;
+int sushi[MAX], sushi_kind[3001]; //입력 받은 스시정보 저장
+int res = 0, cnt = 0;
+deque<int> dq;
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> N;
-    for (int i = 1; i <= N; i++)
-        cin >> person[i];
+    cin >> N >> D >> K >> C;
 
-    for (int i = 1; i <= N; i++)
+    for (int i = 0; i < N; i++)
+        cin >> sushi[i];
+
+    //연속해서 먹는 k개를 덱에 넣고 종류를 센다
+    for (int i = 0; i < K; i++)
     {
-        int cnt;
-        cin >> cnt;
+        dq.push_back(sushi[i]);
 
-        for (int j = 0; j < cnt; j++)
-        {
-            int c;
-            cin >> c;
+        sushi_kind[sushi[i]]++;
 
-            connected[i][c] = true;
-            connected[c][i] = true;
-        }
+        if (sushi_kind[sushi[i]] == 1)
+            cnt++;
+
+        res = max(res, cnt);
     }
 
-    DFS(1, 0); //1. 선거구 조합
+    //슬라이딩 윈도우 기법
+    for (int i = 0; i < N - 1; i++)
+    {
+        //맨 앞 스시를 빼고
+        dq.pop_front();
+        sushi_kind[sushi[i]]--;
 
-    if (res == 987654321)
-        cout << -1 << '\n';
-    else
-        cout << res << '\n';
+        //해당 스시가 덱에 없을 경우 cnt를 뺀다
+        if (sushi_kind[sushi[i]] == 0)
+            cnt--;
+
+        //다음 스시를 덱에 넣고
+        dq.push_back(sushi[(i + K) % N]);
+        sushi_kind[sushi[(i + K) % N]]++;
+
+        //새로운 종류라면 cnt를 증가시킨다.
+        if (sushi_kind[sushi[(i + K) % N]] == 1)
+            cnt++;
+
+        //만약 덱에 쿠폰 스시가 없을 경우
+        if (sushi_kind[C] == 0)
+            res = max(res, cnt + 1);
+
+        else
+            res = max(res, cnt);
+    }
+    cout << res << '\n';
 
     return 0;
 }
