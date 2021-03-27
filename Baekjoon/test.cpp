@@ -1,47 +1,57 @@
 #include <iostream>
-#include <cstring>
-#include <queue>
+#include <vector>
+#include <cmath>
 
 using namespace std;
 
-int n, m;
-char map[50][50];
-int dist[50][50];
-int max_dist = 0;
+int N, M;
+int map[50][50];
+int res = 987654321;
 
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
+vector<pair<int, int>> chicken, house, v;
+bool check[13];
 
-void bfs(int i, int j)
+int Solution()
 {
-    memset(dist, -1, sizeof(dist));
-    dist[i][j] = 0;
-    queue<pair<int, int>> q;
-    q.push({i, j});
-
-    while (!q.empty())
+    int sum = 0;
+    for (int i = 0; i < house.size(); i++)
     {
-        int x = q.front().first;
-        int y = q.front().second;
-        q.pop();
+        int x1 = house[i].first;
+        int y1 = house[i].second;
+        int d = 987654321;
 
-        for (int dir = 0; dir < 4; dir++)
+        for (int j = 0; j < v.size(); j++)
         {
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
+            int x2 = v[j].first;
+            int y2 = v[j].second;
+            int dist = abs(x2 - x1) + abs(y2 - y1);
 
-            if (nx < 0 || nx >= n || ny < 0 || ny >= m)
-                continue;
-
-            if (map[nx][ny] == 'W' || dist[nx][ny] != -1)
-                continue;
-
-            dist[nx][ny] = dist[x][y] + 1;
-            q.push({nx, ny});
-
-            if (dist[nx][ny] > max_dist)
-                max_dist = dist[nx][ny];
+            d = min(d, dist);
         }
+        sum += d;
+    }
+    return sum;
+}
+
+void Select(int index, int cnt)
+{
+    if (cnt == M)
+    {
+        res = min(res, Solution());
+        return;
+    }
+    for (int i = index; i < chicken.size(); i++)
+    {
+        if (check[i] == true)
+            continue;
+
+        check[i] = true;
+        v.push_back(chicken[i]);
+
+        Select(i, cnt + 1);
+
+        check[i] = false;
+        v.pop_back();
     }
 }
 
@@ -50,22 +60,23 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> n >> m;
+    cin >> N >> M;
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
             cin >> map[i][j];
 
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < m; j++)
-        {
-            if (map[i][j] == 'L')
-                bfs(i, j);
+            if (map[i][j] == 1)
+                house.push_back({i, j});
+            else if (map[i][j] == 2)
+                chicken.push_back({i, j});
         }
     }
 
-    cout << max_dist << '\n';
+    Select(0, 0);
+    cout << res << '\n';
 
     return 0;
 }

@@ -76,8 +76,6 @@ int main()
     }
 
     Select(0, 0);
-    Solution();
-
     cout << res << '\n';
 
     return 0;
