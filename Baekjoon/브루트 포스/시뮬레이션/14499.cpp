@@ -1,48 +1,47 @@
 #include <iostream>
-#include <deque>
 #include <queue>
 
 using namespace std;
 
-int n, m, sx, sy, k;
+int N, M, X, Y, K; //지도 크기, 주사위 놓을 좌표, 명령 개수
 int map[20][20];
-deque<int> cmd;
-int dice[7] = {0};
 
 int dx[] = {0, 0, 0, -1, 1};
 int dy[] = {0, 1, -1, 0, 0};
+queue<int> cmd;
+int dice[7];
 
-void RollDice(int d)
+void RollDice(int c)
 {
     int d1 = dice[1];
     int d2 = dice[2];
     int d3 = dice[3];
     int d4 = dice[4];
     int d5 = dice[5];
-    int d6 = dice[6];
 
-    if (d == 1) //동쪽
+    int d6 = dice[6];
+    if (c == 1) //동쪽으로
     {
         dice[1] = d4;
         dice[3] = d1;
         dice[6] = d3;
         dice[4] = d6;
     }
-    else if (d == 2) //서쪽
+    else if (c == 2) //서쪽으로
     {
         dice[1] = d3;
         dice[4] = d1;
         dice[6] = d4;
         dice[3] = d6;
     }
-    else if (d == 3) //북쪽
+    else if (c == 3) //북쪽으로
     {
         dice[1] = d5;
         dice[5] = d6;
         dice[6] = d2;
         dice[2] = d1;
     }
-    else if (d == 4) //남쪽
+    else if (c == 4) //남쪽으로
     {
         dice[1] = d2;
         dice[5] = d1;
@@ -50,32 +49,32 @@ void RollDice(int d)
         dice[2] = d6;
     }
 }
-void solution()
+
+void Solution()
 {
-    int x = sx;
-    int y = sy;
-    int c = cmd.size();
-
-    for (int i = 0; i < c; i++)
+    int x = X;
+    int y = Y;
+    while (!cmd.empty())
     {
-        int d = cmd.front();
-        cmd.pop_front();
+        int command = cmd.front();
+        cmd.pop();
 
-        int nx = x + dx[d];
-        int ny = y + dy[d];
+        int nx = x + dx[command];
+        int ny = y + dy[command];
 
-        if (nx < 0 || ny < 0 || nx >= n || ny >= m)
+        if (nx < 0 || nx >= N || ny < 0 || ny >= M)
             continue;
 
-        RollDice(d);
+        RollDice(command);
 
-        if (map[nx][ny] == 0)
-            map[nx][ny] = dice[6];
-
-        else
+        if (map[nx][ny] != 0)
         {
             dice[6] = map[nx][ny];
             map[nx][ny] = 0;
+        }
+        else if (map[nx][ny] == 0)
+        {
+            map[nx][ny] = dice[6];
         }
 
         cout << dice[1] << '\n';
@@ -84,27 +83,29 @@ void solution()
         y = ny;
     }
 }
-
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> n >> m >> sx >> sy >> k;
+    cin >> N >> M >> X >> Y >> K;
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            cin >> map[i][j];
-
-    for (int i = 0; i < k; i++)
+    for (int i = 0; i < N; i++)
     {
-        int a;
-        cin >> a;
-        cmd.push_back(a);
+        for (int j = 0; j < M; j++)
+        {
+            cin >> map[i][j];
+        }
     }
 
-    solution();
+    for (int i = 0; i < K; i++)
+    {
+        int tmp;
+        cin >> tmp;
+        cmd.push(tmp);
+    }
 
+    Solution();
 
     return 0;
 }
