@@ -1,103 +1,41 @@
 #include <iostream>
-#include <vector>
-#include <cstring>
-#include <queue>
-#include <algorithm>
 
 using namespace std;
 
-int N;
-int population[11];
-bool relation[11][11];
-bool visited[11];
-bool check[11];
-int res = 987654321;
+int N, M;
+char map[50][50];
+bool visited[50][50];
+int dist[50][50];
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
 
-void Calculation()
+bool DFS(int x, int y, int cnt)
 {
-    int A = 0, B = 0;
-    for (int i = 1; i <= N; i++)
+    if (visited[x][y])
     {
-        if (check[i] == true)
-            A += population[i];
+        if (cnt - dist[x][y] >= 4)
+            return true;
         else
-            B += population[i];
+            return false;
     }
-    int diff = abs(A - B);
+    visited[x][y] = true;
+    dist[x][y] = cnt;
 
-    res = min(res, diff);
-}
-
-bool Check_connect(vector<int> V, bool b)
-{
-    memset(visited, false, sizeof(visited));
-    queue<int> q;
-    q.push(V[0]);
-    visited[V[0]] = true;
-    int cnt = 1;
-
-    while (!q.empty())
+    for (int dir = 0; dir < 4; dir++)
     {
-        int x = q.front();
-        q.pop();
+        int nx = x + dx[dir];
+        int ny = y + dy[dir];
 
-        for (int i = 1; i <= N; i++)
-        {
-            if (relation[x][i] == true && check[i] == b && visited[i] == false)
-            {
-                visited[i] = true;
-                cnt += 1;
-                q.push(i);
-            }
-        }
-    }
-    if (V.size() == cnt)
-        return true;
-
-    else
-        return false;
-}
-
-bool Check()
-{
-    vector<int> A, B;
-
-    for (int i = 1; i <= N; i++)
-    {
-        if (check[i])
-            A.push_back(i);
-        else
-            B.push_back(i);
-    }
-
-    if (A.size() == 0 || B.size() == 0)
-        return false;
-
-    if (!Check_connect(A, true))
-        return false;
-
-    if (!Check_connect(B, false))
-        return false;
-
-    return true;
-}
-void Select(int idx, int cnt)
-{
-    if (cnt > 0)
-    {
-        if (Check())
-            Calculation();
-    }
-
-    for (int i = idx; i <= N; i++)
-    {
-        if (check[i])
+        if (nx < 0 || ny < 0 || nx >= N || ny >= M)
             continue;
 
-        check[i] = true;
-        Select(i, cnt + 1);
-        check[i] = false;
+        if (map[nx][ny] != map[x][y])
+            continue;
+
+        if (DFS(nx, ny, cnt + 1))
+            return true;
     }
+    return false;
 }
 
 int main()
@@ -105,32 +43,27 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> N;
+    cin >> N >> M;
 
-    for (int i = 1; i <= N; i++)
-        cin >> population[i];
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < M; j++)
+            cin >> map[i][j];
 
-    for (int i = 1; i <= N; i++)
+    string res = "No";
+
+    for (int i = 0; i < N; i++)
     {
-        int num;
-        cin >> num;
-
-        for (int j = 0; j < num; j++)
+        for (int j = 0; j < M; j++)
         {
-            int x;
-            cin >> x;
-
-            relation[i][x] = true;
-            relation[x][i] = true;
+            if (!visited[i][j])
+            {
+                if (DFS(i, j, 0))
+                    res = "Yes";
+            }
         }
     }
 
-    Select(1, 0);
-
-    if (res == 987654321)
-        cout << -1 << '\n';
-    else
-        cout << res << '\n';
+    cout << res << "\n";
 
     return 0;
 }
