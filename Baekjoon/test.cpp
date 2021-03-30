@@ -1,46 +1,30 @@
 #include <iostream>
-#include <string>
 #include <vector>
-
+#include <algorithm>
+#include <string>
 using namespace std;
 
-string solution(string new_id)
-{
-    string answer = "";
-
-    string temp = "";
-    for (int i = 0; i < new_id.length(); i++)
-    {
-        char C = new_id[i];
-        
-        if ('A' <= C && C <= 'Z') //1단계
-            temp += tolower(C);
-        else if (('a' <= C && C <= 'z') || ('0' <= C && C <= '9') || C == '-' || C == '_' || C == '.')//2단계
-            temp += C;
-    }
-
-    string temp2 ="";
-    temp2 += temp[0];
-    for (int i = 1; i < temp.length(); i++) //3단계
-    {
-        if (temp[i] == '.' && temp[i] == temp[i - 1])
-            continue;
-        temp2 += temp[i];
-    }
-
-    if (Str[0] == '.') Str = Str.substr(1);
-    if (Str.length() >= 1 && Str[Str.length() - 1] == '.') Str = Str.substr(0, Str.length() - 1);
-
-
-
-    return temp2;
-}
+vector<string> s;
 
 int main()
 {
-    string s = "...!@BaT#*..y.abcdefghijklm";
+	ios::sync_with_stdio(false);
+	cin.tie(0);
 
-    cout<< solution(s)<<'\n';
+	s.push_back("a");
+		s.push_back("a");
+			s.push_back("a");
+	s.push_back("b");
+	s.push_back("a");
+	s.push_back("c");
+	s.push_back("b");
+	s.push_back("a");
+	s.push_back("b");
 
-    return 0;
+	s.erase(unique(s.begin(), s.end()), s.end());
+
+	for (int i = 0; i < s.size(); i++)
+		cout << s[i] << "\n";
+
+	return 0;
 }
