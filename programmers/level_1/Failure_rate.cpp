@@ -1,8 +1,8 @@
-#include <iostream>
+#include <string>
 #include <vector>
 #include <algorithm>
-
 using namespace std;
+
 bool compare(const pair<double, int> &a, const pair<double, int> &b)
 {
     if (a.first == b.first)
@@ -17,27 +17,16 @@ bool compare(const pair<double, int> &a, const pair<double, int> &b)
     else
         return false;
 }
-int main()
+vector<int> solution(int N, vector<int> stages)
 {
-    int N = 5;
-    vector<int> stages;
+    vector<int> answer;
     vector<pair<double, int>> fail(N + 1);
-
-    stages.push_back(2);
-    stages.push_back(1);
-    stages.push_back(2);
-    stages.push_back(6);
-    stages.push_back(2);
-    stages.push_back(4);
-    stages.push_back(3);
-    stages.push_back(3);
 
     sort(stages.begin(), stages.end());
 
     for (int i = 0; i < stages.size(); i++)
     {
         int st_num = stages[i]; //못 깬 스테이지
-      
         if (st_num <= N)
             fail[st_num].first += 1;
     }
@@ -59,14 +48,12 @@ int main()
         player -= num;
     }
 
-    sort(fail.begin()+1, fail.end(),compare);
+    sort(fail.begin() + 1, fail.end(), compare);
 
-    for(int i =1;i<=N;i++)
+    for (int i = 1; i <= N; i++)
     {
-      answer.push_back[fail[i].second];
+        answer.push_back(fail[i].second);
     }
 
-
-
-
+    return answer;
 }
