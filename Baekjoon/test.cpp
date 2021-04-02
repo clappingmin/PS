@@ -1,59 +1,31 @@
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <queue>
 
 using namespace std;
-bool compare(const pair<double, int> &a, const pair<double, int> &b)
+
+int solution(string skill, vector<string> skill_trees)
 {
-	if (a.first == b.first)
+	int answer = 0;
+	queue<char> q;
+
+	for (int j = skill.length() - 1; j >= 0; j--)
+		q.push(skill[j]);
+
+	for (int i =0;i<q.size();i++)
+	cout<<q[i]<<'\n';
+
+	for (int i = 0; i < skill_trees.size(); i++)
 	{
-		if (b.second > a.second)
-			return true;
-		else
-			return false;
-	}
-	else if (a.first > b.first)
-		return true;
-	else
-		return false;
-}
-vector<int> solution(int N, vector<int> stages)
-{
-	vector<int> answer;
-	vector<pair<double, int>> fail(N + 1);
 
-	sort(stages.begin(), stages.end());
 
-	for (int i = 0; i < stages.size(); i++)
-	{
-		int st_num = stages[i]; //못 깬 스테이지
-
-		if (st_num <= N)
-			fail[st_num].first += 1;
-	}
-
-	double player = stages.size();
-
-	for (int i = 1; i <= N; i++)
-	{
-		fail[i].second = i;
-		int num = fail[i].first;
-
-		if (num == 0)
+		for (int j = 0; j < skill_trees[i].length(); i++)
 		{
-			fail[i].first = 0;
-			continue;
+			if (skill_trees[i][j] == q.back())
+				q.pop();
 		}
-
-		fail[i].first = (double)num / player;
-		player -= num;
-	}
-
-	sort(fail.begin() + 1, fail.end(), compare);
-
-	for (int i = 1; i <= N; i++)
-	{
-		answer.push_back[fail[i].second];
+		if (q.emplace())
+			answer += 1;
 	}
 	return answer;
 }
