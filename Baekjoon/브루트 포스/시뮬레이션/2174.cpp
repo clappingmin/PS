@@ -8,7 +8,8 @@ struct robot
 int A, B, N, M;
 int w[101][101];
 robot r[101];
-const int dx[] = {-1, 0, 1, 0}, dy[] = {0, 1, 0, -1};
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
 
 bool solve(int id, char direct, int cnt)
 {
