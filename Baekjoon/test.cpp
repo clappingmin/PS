@@ -1,35 +1,73 @@
 #include <iostream>
-#include <algorithm>
+#include <queue>
+#include <string>
+#include <set>
+
 using namespace std;
 
-int N, K;
-int W[101], V[101];
-int dp[101][100001];
+long long S, T;
+char op[] = {'*', '+', '-', '/'};
 
-void Solution()
+long long Calculation(long long x, char c)
 {
-	for (int i = 1; i <= N; i++)
-	{
-		for (int j = 1; j <= K; j++)
-		{
-			if (j >= W[i])
+	if (c == '*')
+		return (x * x);
+	else if (c == '+')
+		return (x + x);
+	else if (c == '-')
+		return (x - x);
+	else if (c == '/')
+		return (x / x);
+}
 
-				dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - W[i]] + V[i]);
-			else
-				dp[i][j] = dp[i - 1][j];
+void BFS()
+{
+	queue<pair<long long, string>> q;
+	set<long long> se; //중복 방지를 위해서 사용
+	q.push({S, ""});
+	se.insert(S);
+
+	while (!q.empty())
+	{
+		long long x = q.front().first;
+		string s = q.front().second;
+		q.pop();
+
+		if (x == T)
+		{
+			cout << s << '\n';
+			return;
+		}
+
+		for (int dir = 0; dir < 4; dir++)
+		{
+			long long nx = Calculation(x, op[dir]);
+
+			if (nx < 1)
+				continue;
+
+			if (se.find(nx) != se.end()) //이미 있을 경우
+				continue;
+
+			se.insert(nx);
+			q.push({nx, s + op[dir]});
 		}
 	}
+	cout << "-1\n"
+		 << '\n';
 }
+
 int main()
 {
 	ios::sync_with_stdio(false);
+	cin.tie(0);
 
-	cin >> N >> K;
+	cin >> S >> T;
 
-	for (int i = 1; i <= N; i++)
-		cin >> W[i] >> V[i];
+	if (S == T)
+		cout << 0 << '\n';
+	else
+		BFS();
 
-	Solution();
-
-	cout << dp[N][K] << '\n';
+	return 0;
 }

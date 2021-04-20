@@ -1,81 +1,72 @@
 #include <iostream>
-#include <string>
 #include <queue>
+#include <string>
 #include <set>
 
 using namespace std;
 
 long long S, T;
-bool check;
-string op[] = {"*", "+", "-", "/"};
-set<long long> se;
+char op[] = {'*', '+', '-', '/'};
 
-long long Calculate(long x, int idx)
+long long Calculation(long long x, char c)
 {
-    if (idx == 0)
-        return (x * x);
-
-    else if (idx == 1)
-        return (x + x);
-
-    else if (idx == 2)
-        return (x - x);
-
-    else if (idx == 3)
-        return (x / x);
+	if (c == '*')
+		return (x * x);
+	else if (c == '+')
+		return (x + x);
+	else if (c == '-')
+		return (x - x);
+	else if (c == '/')
+		return (x / x);
 }
 
-string BFS()
+void BFS()
 {
-    queue<pair<long long, string>> q;
-    q.push({S, ""});
-    se.insert(S);
+	queue<pair<long long, string>> q;
+	set<long long> se; //중복 방지를 위해서 사용
+	q.push({S, ""});
+	se.insert(S);
 
-    while (!q.empty())
-    {
-        long long x = q.front().first;
-        string s = q.front().second;
-        q.pop();
+	while (!q.empty())
+	{
+		long long x = q.front().first;
+		string s = q.front().second;
+		q.pop();
 
-        if (x == T)
-        {
-            return s;
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            long long nx = Calculate(x, i);
-            if (nx < 1)
-                continue;
-            if (se.find(nx) != se.end())
-                continue;
-            se.insert(nx);
-            q.push(make_pair(nx, s + op[i]));
-        }
-    }
-    return "a";
-}
+		if (x == T)
+		{
+			cout << s << '\n';
+			return;
+		}
 
-void Solution()
-{
-    string R = BFS();
-    if (R!="a")
-        cout << R << '\n';
-    else
-        cout << -1 << '\n';
+		for (int dir = 0; dir < 4; dir++)
+		{
+			long long nx = Calculation(x, op[dir]);
+
+			if (nx < 1)
+				continue;
+
+			if (se.find(nx) != se.end()) //이미 있을 경우
+				continue;
+
+			se.insert(nx);
+			q.push({nx, s + op[dir]});
+		}
+	}
+	cout << "-1\n";
 }
 
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
+	ios::sync_with_stdio(false);
+	cin.tie(0);
 
-    cin >> S >> T;
+	cin >> S >> T;
 
-    if (S == T)
-        cout << 0 << '\n';
+	if (S == T)
+		cout << 0 << '\n';
+	else
+		BFS();
 
-    else
-        Solution();
-
-    return 0;
+	return 0;
 }
