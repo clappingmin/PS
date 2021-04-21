@@ -1,54 +1,101 @@
 #include <iostream>
 #include <vector>
-
+#include <algorithm>
 using namespace std;
 
-int n, m, k; //가로, 세로, 스티커 개수
-int map[40][40];
-int sticker[100][10][10]; //[개수][][]
-bool avail;
-
-vector<pair<int, int>> s_info; //스티커 가로, 세로 저장
-void check(int s_num)
+int n, m, k;
+int A[44][44];
+bool visited[44][44];
+bool set(int y, int x, vector<vector<int>> &v, int dig)
 {
-    int sr = s_info[s_num].first;
-    int sc = s_info[s_num].second;
+    int a = v.size();
+    int b = v[0].size();
 
-    for(int i=0;i<=n-sr;i++)
+    bool check = true;
+    for (int i = y; i < y + a; ++i)
     {
-        for(int j=0;j<=m-sc;j++)
+        for (int j = x; j < x + b; ++j)
         {
-            bool 
+            if (v[i - y][j - x] == 1)
+            {
+                A[i][j] += dig;
+                if (A[i][j] >= 2)
+                    check = false;
+            }
         }
     }
 
-
+    return check;
 }
+void rotate(vector<vector<int>> &v)
+{
+    int a = v.size();
+    int b = v[0].size();
 
+    vector<vector<int>> temp = vector<vector<int>>(b, vector<int>(a));
+
+    for (int i = 0; i < a; ++i)
+        for (int j = 0; j < b; ++j)
+        {
+            temp[j][i] = v[a - 1 - i][j];
+        }
+
+    v = temp;
+}
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-
     cin >> n >> m >> k;
 
-    for (int i = 0; i < k; i++) //스티커 입력
+    while (k--)
     {
+
         int r, c;
         cin >> r >> c;
+        vector<vector<int>> v(r, vector<int>(c));
+        for (int i = 0; i < r; ++i)
+            for (int j = 0; j < c; ++j)
+            {
+                cin >> v[i][j];
+            }
 
-        s_info.push_back({r, c});
+        for (int l = 0; l < 4; ++l)
+        {
+            bool flg = false;
+            for (int i = 0; i < n; ++i)
+            {
+                for (int j = 0; j < m; ++j)
+                {
 
-        for (int j = 0; j < r; j++)
-            for (int t = 0; t < c; t++)
-                cin >> sticker[i][j][t];
+                    if (i + v.size() - 1 < n && j + v[0].size() - 1 < m)
+                    {
+
+                        if (set(i, j, v, 1))
+                        {
+                            flg = true;
+                        }
+                        if (!flg)
+                            set(i, j, v, -1);
+
+                        if (flg)
+                            break;
+                    }
+                }
+                if (flg)
+                    break;
+            }
+            if (flg)
+                break;
+
+            rotate(v);
+        }
     }
 
-    for(int i=0;i<k;i++)
-    {
-        avail = false;
-        check(i);
-    }
+    int cnt = 0;
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < m; ++j)
+            if (A[i][j] == 1)
+                cnt += 1;
 
+    cout << cnt << "\n";
     return 0;
 }
