@@ -28,7 +28,7 @@ void Input()
     }
 }
 
-bool MoreThanFour()
+bool MoreThanFour() //4명 이상인지
 {
     int Cnt = 0;
     for (int i = 0; i < 25; i++)
@@ -48,7 +48,7 @@ bool MoreThanFour()
         return false;
 }
 
-bool Adjacency()
+bool Adjacency()    //서로 연결되어 있는지
 {
     queue<pair<int, int>> Q;
     bool Check_Select[5][5];
@@ -111,7 +111,7 @@ bool Adjacency()
     return false;
 }
 
-void DFS(int Idx, int Cnt)
+void DFS(int Idx, int Cnt)  //7명 선택하기
 {
     if (Cnt == 7)
     {
@@ -151,7 +151,6 @@ int main(void)
     cin.tie(NULL);
     cout.tie(NULL);
 
-    //freopen("Input.txt", "r", stdin);
     Solve();
 
     return 0;
