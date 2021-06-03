@@ -1,60 +1,73 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <queue>
+#include <set>
+#include <string>
+
 #define ll long long
 
 using namespace std;
 
-ll n, m;
-vector<ll> tree;
+char op[] = {'*', '+', '-', '/'};
+ll s, t;
 
-bool possible(ll mid)
+ll Calculation(ll x, char c)
 {
-	ll tmp = 0;
-	for (int i = 0; i < n; i++)
-	{
-		if (tree[i] > mid)
-			tmp += (tree[i] - mid);
-	}
-
-	if (tmp >= m)
-		return true;
-	else
-	return false;
+	if (c == '*')
+		return (x * x);
+	else if (c == '+')
+		return (x + x);
+	else if (c == '-')
+		return (x - x);
+	else if (c == '/')
+		return (x / x);
 }
+
+void BFS()
+{
+	queue<pair<ll, string>> q;
+	set<ll> se;
+	q.push({s, ""});
+	se.insert(s);
+
+	while (!q.empty())
+	{
+		ll x = q.front().first;
+		string str = q.front().second;
+		q.pop();
+
+		if (x == t)
+		{
+			cout << str << '\n';
+			return;
+		}
+		for (int dir = 0; dir < 4; dir++)
+		{
+			ll nx = Calculation(x, op[dir]);
+
+			if (nx < 1)
+				continue;
+
+			if (se.find(nx) != se.end()) //이미 있을 경우
+				continue;
+
+			se.insert(nx);
+			q.push({nx, str + op[dir]});
+		}
+	}
+	cout << "-1\n";
+}
+
 int main()
 {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> s >> t;
 
-	ll high = 0, low = 1, res = 0;
-
-	for (int i = 0; i < n; i++)
-	{
-		ll height;
-		cin >> height;
-
-		tree.push_back(height);
-		high = max(high, height);
-	}
-
-	while (low <= high)
-	{
-		ll mid = (high + low) / 2;
-
-		if (possible(mid))
-		{
-			if (res < mid)
-				res = mid;
-			low = mid + 1;
-		}
-		else
-			high = mid - 1;
-	}
-
-	cout<<res<<'\n';
+	if (s == t)
+		cout << 0 << '\n';
+	else
+		BFS();
 
 	return 0;
 }
