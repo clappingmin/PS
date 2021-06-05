@@ -1,132 +1,132 @@
 #include <iostream>
+#include <string>
 #include <queue>
-#include <cstring>
-#define MAX 1500
 
 using namespace std;
 
 int r, c;
-char map[MAX][MAX];
-bool visited[MAX][MAX];
-int dx[4] = {-1, 0, 1, 0};
-int dy[4] = {0, 1, 0, -1};
+int swan_index[2][2];
+int day = 0;
+char map[1501][1501];
+bool visited[1501][1501];
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
+queue<pair<int, int>> swan;
+queue<pair<int, int>> swan_ice;
+queue<pair<int, int>> water;
+queue<pair<int, int>> water_ice;
 
-bool meet(int i, int j)
+void melting_ice()
 {
-    visited[i][j] = true;
-    queue<pair<int, int>> q;
-    q.push(make_pair(i, j));
+	while (!water.empty())
+	{
+		int x = water.front().first;
+		int y = water.front().second;
+		water.pop();
 
-    while (!q.empty())
-    {
-        int x = q.front().first;
-        int y = q.front().second;
-        q.pop();
+		for (int dir = 0; dir < 4; dir++)
+		{
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
 
-        if (map[x][y] == 'L' && x != i && y != j)
-            return true;
+			if (nx < 0 || ny < 0 || nx >= r || ny >= c)
+				continue;
 
-        for (int dir = 0; dir < 4; dir++)
-        {
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
+			if (map[nx][ny] == 'X')
+			{
+				map[nx][ny] = '.';
+				water_ice.push({nx, ny});
+			}
+		}
+	}
+}
+bool meet_swan()
+{
+	while (!swan.empty())
+	{
+		int x = swan.front().first;
+		int y = swan.front().second;
+		swan.pop();
 
-            if (nx < 0 || nx >= r || ny < 0 || ny >= c)
-                continue;
-            if (map[nx][ny] == 'X' || visited[nx][ny])
-                continue;
+		for (int dir = 0; dir < 4; dir++)
+		{
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
 
-            visited[nx][ny] = true;
-            q.push(make_pair(nx, ny));
-        }
-    }
-    return false;
+			if (nx < 0 || ny < 0 || nx >= r || ny >= c)
+				continue;
+
+			if (visited[nx][ny])
+				continue;
+
+			if (map[nx][ny] == '.')
+			{
+				visited[nx][ny] = true;
+				swan.push({nx, ny});
+			}
+			else if (map[nx][ny] == 'X')
+			{
+				visited[nx][ny] = true;
+				swan_ice.push({nx, ny});
+			}
+			else if (map[nx][ny] == 'L')
+			{
+				visited[nx][ny] = true;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
-void melting(int i, int j)
+void memset_q()
 {
-    visited[i][j] = true;
-    queue<pair<int, int>> q;
-    q.push(make_pair(i, j));
-
-    while (!q.empty())
-    {
-        int x = q.front().first;
-        int y = q.front().second;
-        q.pop();
-
-        for (int dir = 0; dir < 4; dir++)
-        {
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
-
-            if (nx < 0 || nx >= r || ny < 0 || ny >= c)
-                continue;
-            if (visited[nx][ny])
-                continue;
-            if (map[nx][ny] == 'X')
-            {
-                map[nx][ny] = '.';
-                visited[nx][ny] = true;
-                continue;
-            }
-            visited[nx][ny] = true;
-            q.push(make_pair(nx, ny));
-        }
-    }
+	while (!water_ice.empty())
+		water_ice.pop();
+	while (!swan_ice.empty())
+		swan_ice.pop();
 }
-
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
+	ios::sync_with_stdio(false);
+	cin.tie(0);
 
-    int lx, ly; //백조 하나의 좌표
-    int day = 0;
+	cin >> r >> c;
+	int n = 0;
 
-    cin >> r >> c;
+	for (int i = 0; i < r; i++)
+	{
+		for (int j = 0; j < c; j++)
+		{
+			cin >> map[i][j];
 
-    for (int i = 0; i < r; i++)
-    {
-        for (int j = 0; j < c; j++)
-        {
-            cin >> map[i][j];
-            if (map[i][j] == 'L')
-            {
-                lx = i;
-                ly = j;
-            }
-        }
-    }
-    //처음에도 만날 수 있는지 체크
-    if (meet(lx, ly))
-    {
-        cout << day << '\n';
-        return 0;
-    }
+            if (map[i][j] != 'X')
+				water.push({i, j});
+                
+			if (map[i][j] == 'L')
+			{
+				swan_index[n][0] = i;
+				swan_index[n][1] = j;
+				n++;
+			}
+		}
+	}
+	swan.push({swan_index[0][0], swan_index[0][1]});
+	visited[swan_index[0][0]][swan_index[0][1]] = true;
 
-    while (true)
-    {
-        memset(visited, false, sizeof(visited));
+	while (true)
+	{
+		if (meet_swan()) //1.백조가 만나는지 확인
+		{
+			cout << day << '\n';
+			break;
+		}
+		melting_ice();	//2.얼음 녹이기
+		water = water_ice;
+		swan = swan_ice;
+		memset_q();
+		day++;
+	}
 
-        //얼음 녹이기
-        for (int i = 0; i < r; i++)
-        {
-            for (int j = 0; j < c; j++)
-            {
-                if (map[i][j] == '.' && !visited[i][j])
-                    melting(i, j);
-            }
-        }
-        day++;
-
-        memset(visited, false, sizeof(visited));
-
-        if (meet(lx, ly))
-        {
-            cout << day << '\n';
-            return 0;
-        }
-    }
-    return 0;
+	return 0;
 }
