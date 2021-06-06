@@ -1,85 +1,47 @@
 #include <iostream>
-#include <queue>
-#include <deque>
+#include <vector>
+#include <algorithm>
+#define ll long long
 
 using namespace std;
 
-int n, k, l; //보드 크기, 사과 개수, 뱀 변환 횟수
-int map[100][100];
-queue<pair<int, char>> cmd;
-deque<pair<int, int>> snake;
-int dx[] = {0, 1, 0, -1};
-int dy[] = {1, 0, -1, 0};
+ll n, m; //나무 수, 가져갈 나무 길이
+vector<ll> tree;
+ll high, low, mid;
+ll res = 0;
 
-int turn_snake(int d, char c)
+bool check(ll h)
 {
-	if (c == 'L')
+	int temp = 0;
+
+	for (int i = 0; i < n; i++)
 	{
-		if (d == 0)
-			return 3;
-		else if (d == 1)
-			return 0;
-		else if (d == 2)
-			return 1;
-		else if (d == 3)
-			return 2;
+		if (tree[i] > h)
+			temp += (tree[i] - h);
 	}
-	else if (c == 'D')
-	{
-		if (d == 0)
-			return 1;
-		else if (d == 1)
-			return 2;
-		else if (d == 2)
-			return 3;
-		else if (d == 3)
-			return 0;
-	}
+	if (temp >= m)
+		return true;
+
+	return false;
 }
 
-void game()
+void solution()
 {
-	map[0][0] = 2; //뱀 표시
-	snake.push_back({0, 0});
-	int d = 0; //뱀 방향
-	int time = 0;
+	low = 1;
 
-	while (true)
+	while (low <= high)
 	{
-		time++;
+		mid = (high + low) / 2;
 
-		int x = snake.front().first;
-		int y = snake.front().second;
-
-		int nx = x + dx[d];
-		int ny = y + dy[d];
-
-		if (map[nx][ny] == 2 || nx < 0 || ny < 0 || nx >= n || ny >= n)
-			break;
-
-		if (map[nx][ny] == 0) //빈공간 일 경우
+		if (check(mid))
 		{
-			map[nx][ny] = 2;
-			snake.push_front({nx, ny});
-			map[snake.back().first][snake.back().second] = 0;
-			snake.pop_back();
-		}
-		else if (map[nx][ny] == 1)
-		{
-			snake.push_front({nx, ny});
-			map[nx][ny] = 2;
-		}
+			low = mid + 1;
 
-		if (!cmd.empty())
-		{
-			if (cmd.front().first == time)
-			{
-				d = turn_snake(d, cmd.front().second);
-				cmd.pop();
-			}
+			res = max(res, mid);
 		}
+		else
+			high = mid - 1;
 	}
-	cout << time << '\n';
 }
 
 int main()
@@ -87,28 +49,19 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> k;
+	cin >> n >> m;
 
-	for (int i = 0; i < k; i++)
+	for (int i = 0; i < n; i++)
 	{
-		int x, y;
-		cin >> x >> y;
-
-		map[x - 1][y - 1] = 1; //사과 표시
+		ll input;
+		cin >> input;
+		tree.push_back(input);
+		high = max(high, input);
 	}
 
-	cin >> l;
+	solution();
 
-	for (int i = 0; i < l; i++)
-	{
-		int x;
-		char c;
-
-		cin >> x >> c;
-		cmd.push({x, c});
-	}
-
-	game();
+	cout << res << '\n';
 
 	return 0;
 }
