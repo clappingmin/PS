@@ -1,44 +1,26 @@
 #include <iostream>
-#include <string>
-#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-int n, m;
-char map[50][50];
-bool check[50][50];
-int dist[50][50];
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
+int n, k;			//물품 수, 버틸 수 있는 무게
+int w[101], v[101]; //무게, 물건 가치
+int dp[101][100001];
 
-bool DFS(int x, int y, int cnt)
+void solution()
 {
-
-	if (check[x][y])
+	for (int i = 1; i <= n; i++) //물건
 	{
-		if (cnt - dist[x][y] >= 4)
-			return true;
-		else
-			return false;
+		for (int j = 1; j <= k; j++) //넣을 수 있는 무게
+		{
+			if (j - w[i] >= 0)
+			{
+				dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + v[i]);
+			}
+			else
+				dp[i][j] = dp[i - 1][j];
+		}
 	}
-	check[x][y] = true;
-	dist[x][y] = cnt;
-
-	for (int dir = 0; dir < 4; dir++)
-	{
-		int nx = x + dx[dir];
-		int ny = y + dy[dir];
-
-		if (nx < 0 || ny < 0 || nx >= n || ny >= m)
-			continue;
-
-		if (map[x][y] != map[nx][ny])
-			continue;
-
-		if (DFS(nx, ny, cnt + 1))
-			return true;
-	}
-	return false;
 }
 
 int main()
@@ -46,35 +28,16 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> n >> k;
 
-	for (int i = 0; i < n; i++)
+	for (int i = 1; i <= n; i++)
 	{
-		for (int j = 0; j < m; j++)
-		{
-			cin >> map[i][j];
-		}
+		cin >> w[i] >> v[i];
 	}
 
-	string res = "No";
+	solution();
 
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < m; j++)
-		{
-			if (!check[i][j])
-			{
-				if (DFS(i, j, 0))
-				{
-					res = "Yes";
-					break;
-				}
-			}
-		}
-		if (res == "Yes")
-			break;
-	}
-	cout << res << '\n';
+	cout << dp[n][k];
 
 	return 0;
 }
