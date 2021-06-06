@@ -1,26 +1,85 @@
 #include <iostream>
-#include <algorithm>
+#include <queue>
+#include <deque>
 
 using namespace std;
 
-int n, k;			//물품 수, 버틸 수 있는 무게
-int w[101], v[101]; //무게, 물건 가치
-int dp[101][100001];
+int n, k, l; //보드 크기, 사과 개수, 뱀 변환 횟수
+int map[100][100];
+queue<pair<int, char>> cmd;
+deque<pair<int, int>> snake;
+int dx[] = {0, 1, 0, -1};
+int dy[] = {1, 0, -1, 0};
 
-void solution()
+int turn_snake(int d, char c)
 {
-	for (int i = 1; i <= n; i++) //물건
+	if (c == 'L')
 	{
-		for (int j = 1; j <= k; j++) //넣을 수 있는 무게
+		if (d == 0)
+			return 3;
+		else if (d == 1)
+			return 0;
+		else if (d == 2)
+			return 1;
+		else if (d == 3)
+			return 2;
+	}
+	else if (c == 'D')
+	{
+		if (d == 0)
+			return 1;
+		else if (d == 1)
+			return 2;
+		else if (d == 2)
+			return 3;
+		else if (d == 3)
+			return 0;
+	}
+}
+
+void game()
+{
+	map[0][0] = 2; //뱀 표시
+	snake.push_back({0, 0});
+	int d = 0; //뱀 방향
+	int time = 0;
+
+	while (true)
+	{
+		time++;
+
+		int x = snake.front().first;
+		int y = snake.front().second;
+
+		int nx = x + dx[d];
+		int ny = y + dy[d];
+
+		if (map[nx][ny] == 2 || nx < 0 || ny < 0 || nx >= n || ny >= n)
+			break;
+
+		if (map[nx][ny] == 0) //빈공간 일 경우
 		{
-			if (j - w[i] >= 0)
+			map[nx][ny] = 2;
+			snake.push_front({nx, ny});
+			map[snake.back().first][snake.back().second] = 0;
+			snake.pop_back();
+		}
+		else if (map[nx][ny] == 1)
+		{
+			snake.push_front({nx, ny});
+			map[nx][ny] = 2;
+		}
+
+		if (!cmd.empty())
+		{
+			if (cmd.front().first == time)
 			{
-				dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + v[i]);
+				d = turn_snake(d, cmd.front().second);
+				cmd.pop();
 			}
-			else
-				dp[i][j] = dp[i - 1][j];
 		}
 	}
+	cout << time << '\n';
 }
 
 int main()
@@ -30,14 +89,26 @@ int main()
 
 	cin >> n >> k;
 
-	for (int i = 1; i <= n; i++)
+	for (int i = 0; i < k; i++)
 	{
-		cin >> w[i] >> v[i];
+		int x, y;
+		cin >> x >> y;
+
+		map[x - 1][y - 1] = 1; //사과 표시
 	}
 
-	solution();
+	cin >> l;
 
-	cout << dp[n][k];
+	for (int i = 0; i < l; i++)
+	{
+		int x;
+		char c;
+
+		cin >> x >> c;
+		cmd.push({x, c});
+	}
+
+	game();
 
 	return 0;
 }
