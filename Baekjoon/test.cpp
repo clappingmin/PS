@@ -1,46 +1,57 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <queue>
+#include <string>
+#include <set>
 #define ll long long
 
 using namespace std;
 
-ll n, m; //나무 수, 가져갈 나무 길이
-vector<ll> tree;
-ll high, low, mid;
-ll res = 0;
+char op[] = {'+', '-', '*', '/'};
+ll s, t;
 
-bool check(ll h)
+ll calculation(ll x, int d)
 {
-	int temp = 0;
-
-	for (int i = 0; i < n; i++)
-	{
-		if (tree[i] > h)
-			temp += (tree[i] - h);
-	}
-	if (temp >= m)
-		return true;
-
-	return false;
+	if (d == 0)
+		return (x + x);
+	else if (d == 1)
+		return (x - x);
+	else if (d == 2)
+		return (x * x);
+	else if (d == 3)
+		return (x / x);
 }
 
 void solution()
 {
-	low = 1;
+	queue<pair<ll, string>> q;
+	set<ll> se;
+	q.push({s, ""});
+	se.insert(s);
 
-	while (low <= high)
+	while (!q.empty())
 	{
-		mid = (high + low) / 2;
+		ll x = q.front().first;
+		string str = q.front().second;
+		q.pop();
 
-		if (check(mid))
+		if (x == t)
 		{
-			low = mid + 1;
-
-			res = max(res, mid);
+			cout << str << '\n';
+			break;
 		}
-		else
-			high = mid - 1;
+
+		for (int dir = 0; dir < 4; dir++)
+		{
+			ll nx = calculation(x, dir);
+
+			if (nx < 1)
+				continue;
+			if (se.find(nx) != se.end()) //이미 있을 경우 continue;
+				continue;
+
+			se.insert(nx);
+			q.push({nx, str + op[dir]});
+		}
 	}
 }
 
@@ -49,19 +60,11 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> s >> t;
 
-	for (int i = 0; i < n; i++)
-	{
-		ll input;
-		cin >> input;
-		tree.push_back(input);
-		high = max(high, input);
-	}
-
-	solution();
-
-	cout << res << '\n';
-
+	if (s == t)
+		cout << 0 << '\n';
+	else
+		solution();
 	return 0;
 }
