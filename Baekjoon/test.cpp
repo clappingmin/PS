@@ -1,30 +1,26 @@
 #include <iostream>
 #include <cstring>
-#define MAX 100000 + 1
 
 using namespace std;
 
-int n, cnt;
-int student[MAX];
-bool visited[MAX], done[MAX];
-
+int n, cnt = 0;
+int arr[1001];
+bool check[1001], done[1001];
 void dfs(int idx)
 {
-	visited[idx] = true;
+	check[idx] = true;
 
-	int next = student[idx];
+	int next = arr[idx];
 
-	if (!visited[next])
+	if (!check[next])
 		dfs(next);
 
 	else if (!done[next])
-	{
-		for (int i = next; i != idx; i = student[i])
-			cnt++;
 		cnt++;
-	}
-	done[idx] = true;
+
+	done[next] = true;
 }
+
 int main()
 {
 	ios::sync_with_stdio(false);
@@ -36,22 +32,23 @@ int main()
 
 	while (t--)
 	{
-		memset(visited, false, sizeof(visited));
-		memset(done, false, sizeof(done));
-
 		cin >> n;
 
 		for (int i = 1; i <= n; i++)
-			cin >> student[i];
+			cin >> arr[i];
+
+		memset(check, false, sizeof(check));
+		memset(done, false, sizeof(done));
 
 		cnt = 0;
 
 		for (int i = 1; i <= n; i++)
 		{
-			if (!visited[i])
+			if (!check[i])
 				dfs(i);
 		}
-		cout<<n-cnt<<'\n';
+
+		cout<<cnt<<'\n';
 	}
 
 	return 0;

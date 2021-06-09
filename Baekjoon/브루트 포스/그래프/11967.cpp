@@ -1,22 +1,30 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#define MAX 101
+#include <queue>
 
 using namespace std;
 
 int n, m;
-vector<pair<int, int>> v[MAX][MAX];
-bool check[MAX][MAX];
-int dx[4] = {-1, 0, 1, 0};
-int dy[4] = {0, 1, 0, -1};
+vector<pair<int, int>> adjlist[101][101];
+bool light[101][101], visited[101][101];
+int cnt = 0;
 
-int bfs(int i, int j)
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
+
+static void initvisited()
 {
-    int cnt = 1;
-    check[i][j] = true;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            visited[i][j] = false;
+}
+
+void bfs()
+{
     queue<pair<int, int>> q;
-    q.push(make_pair(i, j));
+    initvisited();
+    visited[1][1] = true;
+    q.push({1, 1});
 
     while (!q.empty())
     {
@@ -24,56 +32,66 @@ int bfs(int i, int j)
         int y = q.front().second;
         q.pop();
 
+        for (int i = 0; i < adjlist[x][y].size(); i++) //불 켜기
+        {
+            int light_x = adjlist[x][y][i].first;
+            int light_y = adjlist[x][y][i].second;
+
+            if (!light[light_x][light_y])
+            {
+                light[light_x][light_y] = true;
+                cnt++;
+            }
+        }
+
         for (int dir = 0; dir < 4; dir++)
         {
             int nx = x + dx[dir];
-            int ny = y + dx[dir];
+            int ny = y + dy[dir];
 
-            for (int i = 0; i < v[x][y].size(); i++)
-            {
-                int ix = v[x][y][i].first;
-                int iy = v[x][y][i].second;
+            if (nx < 1 || ny < 1 || nx > n || ny > n)
+                continue;
 
-                if (check[ix][iy])
-                    continue;
+            if (!light[nx][ny]) //불이 켜지지 않은 방
+                continue;
 
-                if (nx == ix && ny == iy && check[nx][ny] == false)
-                {
-                    check[nx][ny] = true;
-                    q.push(make_pair(nx, ny));
-                    cnt++;
-                }
-            }
+            if (visited[nx][ny]) //이미 방문한 방
+                continue;
+
+            visited[nx][ny] = true;
+            q.push({nx, ny});
         }
     }
-    return cnt;
 }
+
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    int res = 1;
     cin >> n >> m;
 
     for (int i = 0; i < m; i++)
     {
         int x, y, a, b;
-
         cin >> x >> y >> a >> b;
 
-        v[x][y].push_back(make_pair(a, b));
+        adjlist[x][y].push_back({a, b});
     }
+    cnt = 1;
+    light[1][1] = true;
+    int before_cnt = 0;
 
-    for (int i = 0; i < v[1][1].size(); i++)
+    while (true)
     {
-        int x = v[1][1][i].first;
-        int y = v[1][1][i].second;
+        before_cnt = cnt;
+        bfs();
 
-        res += bfs(x, y);
+        if (before_cnt == cnt)
+            break;
     }
 
-    cout << res << '\n';
+    cout << cnt << '\n';
 
     return 0;
 }
