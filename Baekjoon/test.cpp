@@ -1,56 +1,88 @@
 #include <iostream>
+#include <vector>
+#include <queue>
 #include <cstring>
 
 using namespace std;
 
-int n, cnt;
-int arr[100001];
-bool done[100001], check[100001];
+int n, m;
+bool check[101][101];
+bool light[101][101];
+vector<pair<int, int>> v[101][101];
+int cnt = 0;
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
 
-void dfs(int idx)
+void bfs()
 {
-	check[idx] = true;
+	queue<pair<int, int>> q;
+	q.push({1, 1});
+	light[1][1] = true;
+	check[1][1] = true;
 
-	int next = arr[idx];
-
-	if (!check[next])
-		dfs(next);
-
-	else if (!done[next])
+	while (!q.empty())
 	{
-		for (int i = next; i != idx; i = arr[i])
-			cnt++;
-		cnt++;
+		int x = q.front().first;
+		int y = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < v[x][y].size(); i++)
+		{
+			int temp_x = v[x][y][i].first;
+			int temp_y = v[x][y][i].second;
+
+			if (!light[temp_x][temp_y])
+			{
+				light[temp_x][temp_y] = true;
+				cnt++;
+			}
+		}
+
+		for (int dir = 0; dir < 4; dir++)
+		{
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
+
+			if (nx <= 0 || ny <= 0 || nx > n || ny > n)
+				continue;
+
+			if (check[nx][ny] || !light[nx][ny])
+				continue;
+			
+			check[nx][ny] = true;
+			q.push({nx,ny});
+		}
 	}
-	done[idx] = true;
 }
 int main()
 {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int t;
+	cin >> n >> m;
 
-	cin >> t;
-
-	while (t--)
+	for (int i = 0; i < m; i++)
 	{
-		cin >> n;
+		int x, y, a, b;
 
-		memset(check, false, sizeof(check));
-		memset(done, false, sizeof(done));
-
-		for (int i = 1; i <= n; i++)
-			cin >> arr[i];
-
-		cnt = 0;
-
-		for (int i = 1; i <= n; i++)
-			if (!check[i])
-				dfs(i);
-
-		cout << n - cnt << '\n';
+		cin >> x >> y >> a >> b;
+		v[x][y].push_back({a, b});
 	}
+
+	cnt = 1;
+
+	while(true)
+	{
+		int before_cnt = cnt;
+		memset(check,false,sizeof(check));
+		bfs();
+
+		if(before_cnt == cnt)
+		break;
+
+	}
+
+	cout<<cnt<<'\n';
 
 	return 0;
 }
