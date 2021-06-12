@@ -1,88 +1,120 @@
 #include <iostream>
 #include <vector>
-#include <queue>
 #include <cstring>
+#include <queue>
+#define MAX 3000 + 1
 
 using namespace std;
 
-int n, m;
-bool check[101][101];
-bool light[101][101];
-vector<pair<int, int>> v[101][101];
-int cnt = 0;
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
+int n;
+vector<int> station[MAX];
+bool cycle;
+bool visit[MAX];
+bool check_cycle_station[MAX];
 
-void bfs()
+int bfs(int x)
 {
+	memset(visit, false, sizeof(visit));
 	queue<pair<int, int>> q;
-	q.push({1, 1});
-	light[1][1] = true;
-	check[1][1] = true;
+	q.push({x, 0});
+	visit[x] = true;
 
 	while (!q.empty())
 	{
-		int x = q.front().first;
-		int y = q.front().second;
+		int cur = q.front().first;
+		int cnt = q.front().second;
 		q.pop();
 
-		for (int i = 0; i < v[x][y].size(); i++)
-		{
-			int temp_x = v[x][y][i].first;
-			int temp_y = v[x][y][i].second;
+		if (check_cycle_station[cur])
+			return cnt;
 
-			if (!light[temp_x][temp_y])
+		for (int i = 0; i < station[cur].size(); i++)
+		{
+			int next = station[cur][i];
+
+			if (!visit[next])
 			{
-				light[temp_x][temp_y] = true;
-				cnt++;
+				visit[next] = true;
+				q.push({next, cnt + 1});
 			}
 		}
-
-		for (int dir = 0; dir < 4; dir++)
-		{
-			int nx = x + dx[dir];
-			int ny = y + dy[dir];
-
-			if (nx <= 0 || ny <= 0 || nx > n || ny > n)
-				continue;
-
-			if (check[nx][ny] || !light[nx][ny])
-				continue;
-			
-			check[nx][ny] = true;
-			q.push({nx,ny});
-		}
 	}
+}
+
+void dfs(int cur, int start, int cnt) //현재역, 시작역, 역 개수
+{
+	if (cur == start && cnt >= 2)
+	{
+		cycle = true;
+		return;
+	}
+
+	visit[cur] = true;
+
+	for (int i = 0; i < station[cur].size(); i++)
+	{
+		int next = station[cur][i];
+
+		if (!visit[next])
+			dfs(next, start, cnt + 1);
+		else
+		{
+			if (next == start && cnt >= 2)
+				dfs(next, start, cnt);
+		}
+
+		if (cycle == true)
+			return;
+	}
+}
+
+void solution()
+{
+	for (int i = 1; i <= n; i++)
+	{
+		memset(visit, false, sizeof(visit));
+		cycle = false;
+
+		int start = i;
+		dfs(i, start, 0);
+
+		if (cycle == true)
+			check_cycle_station[i] = true;
+	}
+
+	vector<int> res;
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (check_cycle_station[i])
+		{
+			res.push_back(0);
+			continue;
+		}
+
+		res.push_back(bfs(i));
+	}
+
+	for (int i = 0; i < res.size(); i++)
+		cout << res[i] << " ";
 }
 int main()
 {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> n;
 
-	for (int i = 0; i < m; i++)
+	for (int i = 0; i < n; i++)
 	{
-		int x, y, a, b;
+		int a, b;
+		cin >> a >> b;
 
-		cin >> x >> y >> a >> b;
-		v[x][y].push_back({a, b});
+		station[a].push_back(b);
+		station[b].push_back(a);
 	}
 
-	cnt = 1; 
-
-	while(true)
-	{
-		int before_cnt = cnt;
-		memset(check,false,sizeof(check));
-		bfs();
-
-		if(before_cnt == cnt)
-		break;
-
-	}
-
-	cout<<cnt<<'\n';
+	solution();
 
 	return 0;
 }
