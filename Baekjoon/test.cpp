@@ -69,7 +69,7 @@ int main()
 		v[x][y].push_back({a, b});
 	}
 
-	cnt = 1;
+	cnt = 1; 
 
 	while(true)
 	{
