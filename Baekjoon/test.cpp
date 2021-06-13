@@ -1,56 +1,88 @@
 #include <iostream>
+#include <vector>
 #include <cstring>
-#define MAX 100000 + 1
+#include <queue>
+#define MAX 100 + 1
 
 using namespace std;
 
-int n;
-int student[MAX];
-bool check[MAX];
-bool done[MAX];
-int cnt = 0;
+int n, m;
+vector<pair<int, int>> light[MAX][MAX];
+int cnt = 1;
+bool visit[MAX][MAX];
+bool room[MAX][MAX];
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
 
-void dfs(int idx)
+void bfs()
 {
-	check[idx] = true;
-	int next = student[idx];
+	queue<pair<int, int>> q;
+	visit[1][1] = true;
+	room[1][1] = true;
+	q.push({1, 1});
 
-	if (!check[next])
-		dfs(next);
-
-	else if (!done[next])
+	while (!q.empty())
 	{
-		for (int i = next; i != idx; i = student[i])
-			cnt++;
-		cnt++;
+		int x = q.front().first;
+		int y = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < light[x][y].size(); i++) //불 켜기
+		{
+			int tmp_x = light[x][y][i].first;
+			int tmp_y = light[x][y][i].second;
+
+			if (!room[tmp_x][tmp_y])
+			{
+				room[tmp_x][tmp_y] = true;
+				cnt++;
+			}
+		}
+
+		for (int dir = 0; dir < 4; dir++)
+		{
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
+
+			if (nx <= 0 || ny <= 0 || nx > n || ny > n)
+				continue;
+
+			if (visit[nx][ny]||!room[nx][ny])	//방문했거나 불이 켜져있지 않으면
+				continue;
+
+			q.push({nx, ny});
+			visit[nx][ny] = true;
+		}
 	}
-	done[idx] = true;
 }
+
 int main()
 {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int t;
+	cin >> n >> m;
 
-	cin >> t;
-
-	while (t--)
+	for (int i = 0; i < m; i++)
 	{
-		cin >> n;
-		cnt = 0;
-		memset(check, false, sizeof(check));
-		memset(done, false, sizeof(done));
+		int x, y, a, b;
 
-		for (int i = 1; i <= n; i++)
-			cin >> student[i];
+		cin >> x >> y >> a >> b;
+		light[x][y].push_back({a, b});
+	}
 
-		for (int i = 1; i <= n; i++)
+	int light_room = cnt;
+	while (true)
+	{
+		memset(visit, false, sizeof(visit));
+		bfs();
+
+		if (light_room == cnt)
 		{
-			if (!check[i])
-				dfs(i);
+			cout << cnt << '\n';
+			break;
 		}
-		cout<<n-cnt<<'\n';
+		light_room = cnt;
 	}
 
 	return 0;
