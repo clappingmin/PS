@@ -2,58 +2,99 @@
 #include <vector>
 #include <cstring>
 #include <queue>
-#define MAX 100 + 1
+#define MAX 3000 + 1
 
 using namespace std;
 
-int n, m;
-vector<pair<int, int>> light[MAX][MAX];
-int cnt = 1;
-bool visit[MAX][MAX];
-bool room[MAX][MAX];
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
+int n;
+vector<int> station[MAX];
+bool visited[MAX];
+bool cycle_station[MAX];
+bool cycle;
 
-void bfs()
+int bfs(int x)
 {
+	memset(visited, false, sizeof(visited));
 	queue<pair<int, int>> q;
-	visit[1][1] = true;
-	room[1][1] = true;
-	q.push({1, 1});
+	q.push({x, 0});
+	visited[x] = true;
 
 	while (!q.empty())
 	{
-		int x = q.front().first;
-		int y = q.front().second;
+		int cur = q.front().first;
+		int cnt = q.front().second;
 		q.pop();
 
-		for (int i = 0; i < light[x][y].size(); i++) //불 켜기
+		if (cycle_station[cur])
+			return cnt;
+
+		for (int i = 0; i < station[cur].size(); i++)
 		{
-			int tmp_x = light[x][y][i].first;
-			int tmp_y = light[x][y][i].second;
+			int next = station[cur][i];
 
-			if (!room[tmp_x][tmp_y])
-			{
-				room[tmp_x][tmp_y] = true;
-				cnt++;
-			}
-		}
-
-		for (int dir = 0; dir < 4; dir++)
-		{
-			int nx = x + dx[dir];
-			int ny = y + dy[dir];
-
-			if (nx <= 0 || ny <= 0 || nx > n || ny > n)
+			if (visited[next])
 				continue;
 
-			if (visit[nx][ny]||!room[nx][ny])	//방문했거나 불이 켜져있지 않으면
-				continue;
-
-			q.push({nx, ny});
-			visit[nx][ny] = true;
+			visited[next] = true;
+			q.push({next, cnt + 1});
 		}
 	}
+}
+
+void dfs(int cur, int start, int cnt)
+{
+	if (cur == start && cnt >= 2)
+	{
+		cycle = true;
+		return;
+	}
+	visited[cur] = true;
+
+	for (int i = 0; i < station[cur].size(); i++)
+	{
+		int next = station[cur][i];
+
+		if (!visited[next]) //방문하지 않은 역일 경우
+		{
+			dfs(next, start, cnt + 1);
+		}
+		else //방문한 역일 경우
+		{
+			if (next == start && cnt >= 2)
+				dfs(next, start, cnt);
+			
+		}
+		if (cycle==true)
+			return;
+	}
+}
+
+void solution()
+{
+	for (int i = 1; i <= n; i++)
+	{
+		memset(visited, false, sizeof(visited));
+		cycle = false;
+
+		int start = i;
+		dfs(i, start, 0);
+
+		if (cycle==true)
+			cycle_station[i] = true;
+	}
+
+	vector<int> res;
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (cycle_station[i])
+			res.push_back(0);
+		else
+			res.push_back(bfs(i));
+	}
+	for (int i = 0; i < res.size(); i++)
+		cout << res[i] << " ";
+	cout << "\n";
 }
 
 int main()
@@ -61,29 +102,18 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n >> m;
+	cin >> n;
 
-	for (int i = 0; i < m; i++)
+	for (int i = 0; i < n; i++)
 	{
-		int x, y, a, b;
+		int a, b;
+		cin >> a >> b;
 
-		cin >> x >> y >> a >> b;
-		light[x][y].push_back({a, b});
+		station[a].push_back(a);
+		station[b].push_back(b);
 	}
 
-	int light_room = cnt;
-	while (true)
-	{
-		memset(visit, false, sizeof(visit));
-		bfs();
-
-		if (light_room == cnt)
-		{
-			cout << cnt << '\n';
-			break;
-		}
-		light_room = cnt;
-	}
+	solution();
 
 	return 0;
 }
