@@ -1,68 +1,57 @@
-#include<iostream>
-#include<vector>
-#include<algorithm>
-#include<queue>
+#include <iostream>
+#include <cstring>
+#define MAX 100000 + 1
 
 using namespace std;
-vector<int> a[100001];
-bool check[100001];
-int n; // 정점의 개수
 
-int main(void)
+int n;
+int student[MAX];
+bool check[MAX];
+bool done[MAX];
+int cnt = 0;
+
+void dfs(int idx)
 {
-	cin >> n;
+	check[idx] = true;
+	int next = student[idx];
 
-	for (int i = 0; i < n - 1; i++)
+	if (!check[next])
+		dfs(next);
+
+	else if (!done[next])
 	{
-		int u, v;
-		cin >> u >> v;
-		a[u].push_back(v);
-		a[v].push_back(u);
+		for (int i = next; i != idx; i = student[i])
+			cnt++;
+		cnt++;
 	}
+	done[idx] = true;
+}
+int main()
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
 
-	vector<int> b(n + 1); // 이 벡터에 입력된 순서가 맞는지 확인해야함
-	vector<int> order(n + 1); // 인접리스트를 정렬하기 위한 기준 벡터(확인할 벡터의 순서)
+	int t;
 
-	for (int i = 1; i <= n; i++)
+	cin >> t;
+
+	while (t--)
 	{
-		cin >> b[i];
-		order[b[i]] = i; // 입력을 받은 순서대로 인덱스를 저장할 벡터
-	}
+		cin >> n;
+		cnt = 0;
+		memset(check, false, sizeof(check));
+		memset(done, false, sizeof(done));
 
-	for (int i = 1; i <= n; i++)
-	{
-		sort(a[i].begin(), a[i].end(), [&](const int& u, const int& v)
-			{
-				return order[u] < order[v];
-			}); // 인접 리스트를 확인할 벡터의 순서로 정렬한다.
-	}
+		for (int i = 1; i <= n; i++)
+			cin >> student[i];
 
-	vector<int> bfs_order; // bfs가 맞는지 검사할 배열의 순서로 정렬된 a로 실제 bfs를 수행한 순서를 저장할 벡터
-	bfs_order.push_back(0); // b와 비교하기 위해(b는 1부터 시작되므로)
-	queue<int> q;
-	q.push(1);
-	check[1] = true;
-
-	while (!q.empty())
-	{
-		int node = q.front();
-		q.pop();
-		bfs_order.push_back(node); // pop할때 출력
-
-		for (int i = 0; i < a[node].size(); i++)
+		for (int i = 1; i <= n; i++)
 		{
-			int next = a[node][i];
-			if (check[next] == false)
-			{
-				q.push(next);
-				check[next] = true;
-			}
+			if (!check[i])
+				dfs(i);
 		}
+		cout<<n-cnt<<'\n';
 	}
 
-	if (bfs_order == b) // 확인할 벡터와 그 순서로 정렬된 인접리스트로 bfs를 수행한 벡터를 비교
-		cout << 1 << '\n';
-	else
-		cout << 0 << '\n';
-
+	return 0;
 }
