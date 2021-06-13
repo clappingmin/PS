@@ -1,102 +1,98 @@
 #include <iostream>
-#include <vector>
-#include <cstring>
 #include <queue>
-#define MAX 3000 + 1
+#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
 int n;
-vector<int> station[MAX];
-bool visited[MAX];
-bool cycle_station[MAX];
-bool cycle;
+int map[100][100];
+bool check[100][100];
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
+int dist[100][100];
+int res = 0;
 
-int bfs(int x)
+int create_bridge(int label)
 {
-	memset(visited, false, sizeof(visited));
 	queue<pair<int, int>> q;
-	q.push({x, 0});
-	visited[x] = true;
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (map[i][j] == label)
+			{
+				q.push({i, j});
+				check[i][j] = true;
+			}
+		}
+	}
+
+	int cnt = 0;
 
 	while (!q.empty())
 	{
-		int cur = q.front().first;
-		int cnt = q.front().second;
+		int island = q.size();
+
+		for (int i = 0; i < island; i++)
+		{
+			int x = q.front().first;
+			int y = q.front().second;
+			q.pop();
+
+			for (int dir = 0; dir < 4; dir++)
+			{
+				int nx = x + dx[dir];
+				int ny = y + dy[dir];
+
+				if (nx < 0 || ny < 0 || nx >= n || ny >= n)
+					continue;
+
+				if (map[nx][ny] != 0 || map[nx][ny] != label)
+					return cnt;
+
+				if (!check[nx][ny] && map[nx][ny] == 0)
+				{
+					q.push({nx, ny});
+					check[nx][ny] = true;
+				}
+			}
+		}
+		cnt++;
+	}
+}
+
+void labeling(int i, int j, int label)
+{
+	queue<pair<int, int>> q;
+	check[i][j] = true;
+	q.push({i, j});
+	map[i][j] = label;
+
+	while (!q.empty())
+	{
+		int x = q.front().first;
+		int y = q.front().second;
 		q.pop();
 
-		if (cycle_station[cur])
-			return cnt;
-
-		for (int i = 0; i < station[cur].size(); i++)
+		for (int dir = 0; dir < 4; dir++)
 		{
-			int next = station[cur][i];
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
 
-			if (visited[next])
+			if (nx < 0 || ny < 0 || nx >= n || ny >= n)
 				continue;
 
-			visited[next] = true;
-			q.push({next, cnt + 1});
+			if (map[nx][ny] == 0 || check[nx][ny])
+				continue;
+
+			map[nx][ny] = label;
+			check[nx][ny] = true;
+			q.push({nx, ny});
 		}
 	}
 }
-
-void dfs(int cur, int start, int cnt)
-{
-	if (cur == start && cnt >= 2)
-	{
-		cycle = true;
-		return;
-	}
-	visited[cur] = true;
-
-	for (int i = 0; i < station[cur].size(); i++)
-	{
-		int next = station[cur][i];
-
-		if (!visited[next]) //방문하지 않은 역일 경우
-		{
-			dfs(next, start, cnt + 1);
-		}
-		else //방문한 역일 경우
-		{
-			if (next == start && cnt >= 2)
-				dfs(next, start, cnt);
-			
-		}
-		if (cycle==true)
-			return;
-	}
-}
-
-void solution()
-{
-	for (int i = 1; i <= n; i++)
-	{
-		memset(visited, false, sizeof(visited));
-		cycle = false;
-
-		int start = i;
-		dfs(i, start, 0);
-
-		if (cycle==true)
-			cycle_station[i] = true;
-	}
-
-	vector<int> res;
-
-	for (int i = 1; i <= n; i++)
-	{
-		if (cycle_station[i])
-			res.push_back(0);
-		else
-			res.push_back(bfs(i));
-	}
-	for (int i = 0; i < res.size(); i++)
-		cout << res[i] << " ";
-	cout << "\n";
-}
-
 int main()
 {
 	ios::sync_with_stdio(false);
@@ -105,15 +101,29 @@ int main()
 	cin >> n;
 
 	for (int i = 0; i < n; i++)
-	{
-		int a, b;
-		cin >> a >> b;
+		for (int j = 0; j < n; j++)
+			cin >> map[i][j];
 
-		station[a].push_back(a);
-		station[b].push_back(b);
+	int label = 1;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (!check[i][j] && map[i][j] == 1)
+			{
+				labeling(i, j, label);
+				label++;
+			}
+		}
 	}
 
-	solution();
+	for (int i = 1; i <= label; i++)
+	{
+		memset(check, false, sizeof(false));
+		res = min(res, create_bridge(i));
+	}
+
+	cout << res << '\n';
 
 	return 0;
 }
