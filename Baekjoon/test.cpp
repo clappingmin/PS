@@ -1,39 +1,34 @@
 #include <iostream>
+#include <string>
 #include <vector>
-#include <queue>
-#define MAX 100000 + 1
+#include <algorithm>
 
 using namespace std;
 
 int n;
-vector<int> v[MAX];
-int parents[MAX];
-bool check[MAX];
+vector<char> letters;
+char alpha[256];
 
-void bfs()
+int calc(vector<string> &a, vector<int> &d)
 {
-	queue<int> q;
-	q.push(1);
-	check[1] = true;
-	parents[1] = 0;
+	int m = letters.size();
+	int sum = 0;
 
-	while (!q.empty())
+	for (int i = 0; i < m; i++)
 	{
-		int x = q.front();
-		q.pop();
-
-		for (int i = 0; i < v[x].size(); i++)
-		{
-			int nx = v[x][i];
-
-			if (check[nx])
-				continue;
-
-			parents[nx] = x;
-			check[nx] = true;
-			q.push(nx);
-		}
+		alpha[letters[i]] = d[i];
 	}
+
+	for (string s : a)
+	{
+		int now = 0;
+		for (char x : s)
+		{
+			now = now * 10 + alpha[x];
+		}
+		sum += now;
+	}
+	return sum;
 }
 
 int main()
@@ -42,21 +37,39 @@ int main()
 	cin.tie(0);
 
 	cin >> n;
+	vector<string> a(n); //단어 저장
 
-	for (int i = 0; i < n - 1; i++)
+	for (int i = 0; i < n; i++)
 	{
-		int a, b;
+		cin >> a[i];
 
-		cin >> a >> b;
-
-		v[a].push_back(b);
-		v[b].push_back(a);
+		for (char x : a[i])
+			letters.push_back(x);
 	}
 
-	bfs();
+	sort(letters.begin(), letters.end());
+	letters.erase(unique(letters.begin(), letters.end()), letters.end()); //중복제거
 
-	for (int i = 2; i <= n; i++)
-		cout << parents[i] << '\n';
+	int m = letters.size();
+
+	vector<int> d;
+
+	for (int i = 0; i < m; i++)
+	{
+		d.push_back(9 - i);
+	}
+
+	int res = 0;
+	
+	do
+	{
+		int now = calc(a, d);
+
+		res = max(res, now);
+
+	} while (next_permutation(d.begin(), d.end()));
+
+	cout << res << '\n';
 
 	return 0;
 }
