@@ -57,13 +57,13 @@ int main()
 
     } while (prev_permutation(big.begin(), big.end()));
 
-    for (int i = 0; i < n+1; i++)
+    for (int i = 0; i < n + 1; i++)
         cout << big[i];
     cout << '\n';
 
     for (int i = 0; i < n + 1; i++)
         cout << small[i];
     cout << '\n';
-    
+
     return 0;
 }
