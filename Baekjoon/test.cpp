@@ -1,43 +1,33 @@
 #include <iostream>
+#include <algorithm>
+#define MAX 10000 + 1
 
 using namespace std;
 
 struct Node
 {
 	int left, right;
+	int depth, order;
 };
 
 int n;
-Node a[27];
+Node a[MAX];
+bool check_child[MAX];
+int order = 1;
+int left_ord[MAX];
+int right_ord[MAX];
 
-void preorder(int x)
+void inorder(int x, int depth)
 {
-	if(x==-1)
-	return;
+	if (x == -1)
+		return;
 
-	cout<<(char)(x+'A');
-	preorder(a[x].left);
-	preorder(a[x].right);
+	inorder(a[x].left, depth + 1);
+	a[x].depth = depth;
+	a[x].order = ++order;
+	inorder(a[x].right, depth + 1);
 }
-void inorder(int x)
-{
-	if(x==-1)
-	return;
 
-	inorder(a[x].left);
-	cout<<(char)(x+'A');
-	inorder(a[x].right);
-}
-void postorder(int x)
-{
-	if(x==-1)
-	return;
-
-	postorder(a[x].left);
-	postorder(a[x].right);
-	cout<<(char)(x+'A');
-
-}
 int main()
 {
 	ios::sync_with_stdio(false);
@@ -47,28 +37,60 @@ int main()
 
 	for (int i = 0; i < n; i++)
 	{
-		char x, y, z;
+		int x, y, z;
 
 		cin >> x >> y >> z;
 
-		x = x - 'A';
+		a[x].left = y;
+		a[x].right = z;
 
-		if (y == '.')
-			a[x].left = -1;
-		else
-			a[x].left = y - 'A';
+		if (y != -1)
+			check_child[y] = true;
 
-		if (z == '.')
-			a[x].right = -1;
-		else
-			a[x].right = z - 'A';
+		if (z != -1)
+			check_child[z] = true;
 	}
 
-	preorder(0);
-	cout<<'\n';
-	inorder(0);
-	cout<<'\n';
-	postorder(0);
+	int root = 0;
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (!check_child[i])
+		{
+			root = i;
+			break;
+		}
+	}
+
+	inorder(root, 1);
+	int max_depth = 0;
+
+	for (int i = 1; i <= n; i++)
+	{
+		int now_depth = a[i].depth;
+		int now_order = a[i].order;
+
+		if (left_ord[now_depth])
+			left_ord[now_depth] = min(left_ord[now_depth], now_order);
+		else
+			left_ord[now_depth] = now_order;
+
+		right_ord[now_depth] = max(right_ord[now_depth], now_order);
+
+		max_depth = max(max_depth, now_depth);
+	}
+
+	int res_order = 0, res;
+
+	for (int i = 1; i <= max_depth; i++)
+	{
+		if (res_order < right_ord[i] - left_ord[i] + 1)
+		{
+			res_order = right_ord[i] - left_ord[i] + 1;
+			res = i;
+		}
+	}
+	cout << res << " " << res_order << '\n';
 
 	return 0;
 }
