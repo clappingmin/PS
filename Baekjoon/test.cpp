@@ -1,24 +1,35 @@
 #include <iostream>
+#include <string>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
 
 int n;
-vector<char> sign;
-vector<int> small, big;
+vector<string> input;
+vector<char> use_alpha;
+vector<int> value;
+int alpha[256];
 
-bool check(vector<int> &v)
+int check()
 {
-	for (int i = 0; i < n; i++)
-	{
-		if (sign[i] == '<' && v[i] > v[i + 1])
-			return false;
+	int cnt = use_alpha.size();
 
-		else if (sign[i] == '>' && v[i] < v[i + 1])
-			return false;
+	for (int i = 0; i < cnt; i++)
+	{
+		alpha[use_alpha[i]] = value[i];
 	}
-	return true;
+
+	int sum = 0;
+	for (string s : input)
+	{
+		int now = 0;
+		for (char x : s)
+			now = now * 10 + alpha[x];
+
+		sum += now;
+	}
+	return sum;
 }
 
 int main()
@@ -30,38 +41,32 @@ int main()
 
 	for (int i = 0; i < n; i++)
 	{
-		char c;
-		cin >> c;
+		string s;
+		cin >> s;
 
-		sign.push_back(c);
+		input.push_back(s);
+
+		for (char x : s)
+		{
+			use_alpha.push_back(x);
+		}
 	}
 
-	for (int i = 0; i <= n; i++)
-	{
-		small.push_back(i);
-		big.push_back(9 - i);
-	}
+	sort(use_alpha.begin(), use_alpha.end());
+	use_alpha.erase(unique(use_alpha.begin(), use_alpha.end()), use_alpha.end());
+
+	int cnt = use_alpha.size();
+
+	for (int i = 0; i < cnt; i++)
+		value.push_back(9 - i);
+
+	int res = 0;
 
 	do
 	{
-		if (check(small))
-			break;
-		/* code */
-	} while (next_permutation(small.begin(), small.end()));
+		res = max(res, check());
+	} while (prev_permutation(value.begin(), value.end()));
 
-	do
-	{
-		if (check(big))
-			break;
-	} while (prev_permutation(big.begin(), big.end()));
-
-	for (int i = 0; i <= n; i++)
-		cout << big[i];
-
-	cout << '\n';
-
-	for (int i = 0; i <= n; i++)
-		cout << small[i];
-
+	cout << res << '\n';
 	return 0;
 }
