@@ -1,31 +1,24 @@
 #include <iostream>
+#include <vector>
 #include <algorithm>
-#define MAX 10000 + 1
 
 using namespace std;
 
-struct Node
-{
-	int left, right;
-	int depth, order;
-};
-
 int n;
-Node a[MAX];
-bool check_child[MAX];
-int order = 1;
-int left_ord[MAX];
-int right_ord[MAX];
+vector<char> sign;
+vector<int> small, big;
 
-void inorder(int x, int depth)
+bool check(vector<int> &v)
 {
-	if (x == -1)
-		return;
+	for (int i = 0; i < n; i++)
+	{
+		if (sign[i] == '<' && v[i] > v[i + 1])
+			return false;
 
-	inorder(a[x].left, depth + 1);
-	a[x].depth = depth;
-	a[x].order = ++order;
-	inorder(a[x].right, depth + 1);
+		else if (sign[i] == '>' && v[i] < v[i + 1])
+			return false;
+	}
+	return true;
 }
 
 int main()
@@ -37,60 +30,38 @@ int main()
 
 	for (int i = 0; i < n; i++)
 	{
-		int x, y, z;
+		char c;
+		cin >> c;
 
-		cin >> x >> y >> z;
-
-		a[x].left = y;
-		a[x].right = z;
-
-		if (y != -1)
-			check_child[y] = true;
-
-		if (z != -1)
-			check_child[z] = true;
+		sign.push_back(c);
 	}
 
-	int root = 0;
-
-	for (int i = 1; i <= n; i++)
+	for (int i = 0; i <= n; i++)
 	{
-		if (!check_child[i])
-		{
-			root = i;
+		small.push_back(i);
+		big.push_back(9 - i);
+	}
+
+	do
+	{
+		if (check(small))
 			break;
-		}
-	}
+		/* code */
+	} while (next_permutation(small.begin(), small.end()));
 
-	inorder(root, 1);
-	int max_depth = 0;
-
-	for (int i = 1; i <= n; i++)
+	do
 	{
-		int now_depth = a[i].depth;
-		int now_order = a[i].order;
+		if (check(big))
+			break;
+	} while (prev_permutation(big.begin(), big.end()));
 
-		if (left_ord[now_depth])
-			left_ord[now_depth] = min(left_ord[now_depth], now_order);
-		else
-			left_ord[now_depth] = now_order;
+	for (int i = 0; i <= n; i++)
+		cout << big[i];
 
-		right_ord[now_depth] = max(right_ord[now_depth], now_order);
+	cout << '\n';
 
-		max_depth = max(max_depth, now_depth);
-	}
-
-	int res_order = 0, res;
-
-	for (int i = 1; i <= max_depth; i++)
-	{
-		if (res_order < right_ord[i] - left_ord[i] + 1)
-		{
-			res_order = right_ord[i] - left_ord[i] + 1;
-			res = i;
-		}
-	}
-	cout << res << " " << res_order << '\n';
+	for (int i = 0; i <= n; i++)
+		cout << small[i];
 
 	return 0;
 }
