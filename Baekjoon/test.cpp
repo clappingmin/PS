@@ -1,35 +1,42 @@
 #include <iostream>
-#include <string>
 #include <vector>
+#include <climits>
 #include <algorithm>
 
 using namespace std;
 
 int n;
-vector<string> input;
-vector<char> use_alpha;
-vector<int> value;
-int alpha[256];
+int op[4];
+int num[11];
+int min_res = INT_MAX;
+int max_res = INT_MIN;
 
-int check()
+void dfs(int idx, int add, int sub, int mul, int div, int sum)
 {
-	int cnt = use_alpha.size();
-
-	for (int i = 0; i < cnt; i++)
+	if (idx == n - 1)
 	{
-		alpha[use_alpha[i]] = value[i];
+		min_res = min(min_res, sum);
+		max_res = max(max_res, sum);
+		return;
 	}
 
-	int sum = 0;
-	for (string s : input)
+	if (add != 0)
+		dfs(idx + 1, add - 1, sub, mul, div, sum + num[idx + 1]);
+	if (sub != 0)
+		dfs(idx + 1, add, sub - 1, mul, div, sum - num[idx + 1]);
+	if (mul != 0)
+		dfs(idx + 1, add, sub, mul - 1, div, sum * num[idx + 1]);
+	if (div != 0)
 	{
-		int now = 0;
-		for (char x : s)
-			now = now * 10 + alpha[x];
-
-		sum += now;
+		if (sum < 0)
+		{
+			sum = abs(sum) / num[idx + 1];
+			sum *= -1;
+			dfs(idx + 1, add, sub, mul, div - 1, sum);
+		}
+		else
+			dfs(idx + 1, add, sub, mul, div - 1, sum / num[idx + 1]);
 	}
-	return sum;
 }
 
 int main()
@@ -40,33 +47,14 @@ int main()
 	cin >> n;
 
 	for (int i = 0; i < n; i++)
-	{
-		string s;
-		cin >> s;
+		cin >> num[i];
 
-		input.push_back(s);
+	for (int i = 0; i < 4; i++)
+		cin >> op[i];
 
-		for (char x : s)
-		{
-			use_alpha.push_back(x);
-		}
-	}
+	dfs(0, op[0], op[1], op[2], op[3], num[0]);
 
-	sort(use_alpha.begin(), use_alpha.end());
-	use_alpha.erase(unique(use_alpha.begin(), use_alpha.end()), use_alpha.end());
-
-	int cnt = use_alpha.size();
-
-	for (int i = 0; i < cnt; i++)
-		value.push_back(9 - i);
-
-	int res = 0;
-
-	do
-	{
-		res = max(res, check());
-	} while (prev_permutation(value.begin(), value.end()));
-
-	cout << res << '\n';
+	cout << max_res << '\n'
+		 << min_res << '\n';
 	return 0;
 }
