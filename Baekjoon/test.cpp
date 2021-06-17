@@ -1,41 +1,65 @@
 #include <iostream>
-#include <vector>
-#include <climits>
 #include <algorithm>
+#include <climits>
+#include <vector>
 
 using namespace std;
 
-int n;
-int op[4];
-int num[11];
-int min_res = INT_MAX;
-int max_res = INT_MIN;
+int n, m;
+char map[20][20];
+vector<pair<int, int>> coin;
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
+bool check[20][20];
+int res = INT_MAX;
 
-void dfs(int idx, int add, int sub, int mul, int div, int sum)
+bool range_over(int nx, int ny)
 {
-	if (idx == n - 1)
+	if (nx < 0 || ny < 0 || nx >= n || ny >= m)
+		return true;
+	return false;
+}
+
+void move(int x1, int y1, int x2, int y2, int cnt, int dir)
+{
+	if (res < cnt)
+		return;
+	if (cnt > 10)
 	{
-		min_res = min(min_res, sum);
-		max_res = max(max_res, sum);
+		res = min(res, cnt);
 		return;
 	}
 
-	if (add != 0)
-		dfs(idx + 1, add - 1, sub, mul, div, sum + num[idx + 1]);
-	if (sub != 0)
-		dfs(idx + 1, add, sub - 1, mul, div, sum - num[idx + 1]);
-	if (mul != 0)
-		dfs(idx + 1, add, sub, mul - 1, div, sum * num[idx + 1]);
-	if (div != 0)
+	int nx1 = x1 + dx[dir];
+	int ny1 = y1 + dy[dir];
+	int nx2 = x2 + dx[dir];
+	int ny2 = y2 + dy[dir];
+
+	if (range_over(nx1, ny1) == true && range_over(nx2, ny2) == true)
+		return;
+	else if (range_over(nx1, ny1) == false && range_over(nx2, ny2) == true)
 	{
-		if (sum < 0)
-		{
-			sum = abs(sum) / num[idx + 1];
-			sum *= -1;
-			dfs(idx + 1, add, sub, mul, div - 1, sum);
-		}
-		else
-			dfs(idx + 1, add, sub, mul, div - 1, sum / num[idx + 1]);
+		res = min(res, cnt);
+		return;
+	}
+	else if (range_over(nx1, ny1) == true && range_over(nx2, ny2) == false)
+	{
+		res = min(res, cnt);
+		return;
+	}
+	if (map[nx1][ny1] == '#')
+	{
+		nx1 = x1;
+		ny1 = y1;
+	}
+	if (map[nx2][ny2] == '#')
+	{
+		nx2 = x2;
+		ny2 = y2;
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		move(nx1, ny1, nx2, ny2, cnt + 1, i);
 	}
 }
 
@@ -44,17 +68,30 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n;
+	cin >> n >> m;
 
 	for (int i = 0; i < n; i++)
-		cin >> num[i];
+	{
+		for (int j = 0; j < m; j++)
+		{
+			cin >> map[i][j];
 
-	for (int i = 0; i < 4; i++)
-		cin >> op[i];
+			if (map[i][j] == 'o')
+			{
+				coin.push_back({i, j});
+			}
+		}
+	}
 
-	dfs(0, op[0], op[1], op[2], op[3], num[0]);
+	for (int dir = 0; dir < 4; dir++)
+	{
+		move(coin[0].first, coin[0].second, coin[1].first, coin[1].second, 1, dir);
+	}
 
-	cout << max_res << '\n'
-		 << min_res << '\n';
+	if (res > 10)
+		cout << -1 << '\n';
+	else
+		cout << res << '\n';
+
 	return 0;
 }
