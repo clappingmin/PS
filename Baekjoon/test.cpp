@@ -1,11 +1,11 @@
 #include <iostream>
-#include <vector>
 #include <climits>
 
 using namespace std;
 
 int n;
-vector<int> energy;
+int t[16]; //상담일
+int p[16]; //금액
 int res = INT_MIN;
 
 int max(int a, int b)
@@ -15,25 +15,19 @@ int max(int a, int b)
     return b;
 }
 
-void dfs(int e, int size)
+void dfs(int day, int pay)
 {
-    if (size == 2)
+    if (day == n + 1)
     {
-        res = max(res, e);
+        res = max(res, pay);
         return;
     }
-    for (int i = 1; i < size - 1; i++)
-    {
-        int select = energy[i];
 
-        e += energy[i-1] * energy[i+1];
-        energy.erase(energy.begin()+i);
+    if (day > n + 1)
+        return;
 
-        dfs(e,size-1);
-
-        energy.insert(energy.begin()+i, select);
-        e -= energy[i-1] * energy[i+1];
-    }
+    dfs(day + t[day], pay + p[day]);
+    dfs(day + 1, pay);
 }
 
 int main()
@@ -43,17 +37,15 @@ int main()
 
     cin >> n;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 1; i <= n; i++)
     {
-        int x;
-        cin >> x;
-
-        energy.push_back(x);
+        cin >> t[i];
+        cin >> p[i];
     }
 
-    dfs(0,energy.size());
+    dfs(1, 0);
 
-    cout<<res<<'\n';
+    cout << res << '\n';
 
     return 0;
 }
