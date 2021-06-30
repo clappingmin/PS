@@ -42,7 +42,7 @@ void bfs()
                 continue;
 
             check[nx][ny] = check[x][y] + 1;
-            q.push({nx,ny});
+            q.push({nx, ny});
         }
     }
 }
@@ -59,7 +59,7 @@ int main()
 
     bfs();
 
-    cout<<res<<'\n';
+    cout << res << '\n';
 
     return 0;
 }
