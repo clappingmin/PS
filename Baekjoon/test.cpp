@@ -108,7 +108,7 @@ int main()
             if (map[i][j] == '0')
                 cout << map[i][j];
             else
-                cout << count_place(i, j) % 10;
+                cout << count_place(i, j) % 10; //2.주변의 빈공간 세기
         }
         cout << '\n';
     }
