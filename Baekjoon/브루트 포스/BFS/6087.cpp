@@ -1,27 +1,31 @@
 #include <iostream>
 #include <queue>
 #include <algorithm>
-#define MAX 987654321
+#include <climits>
+#include <cstring>
 
 using namespace std;
 
 int w, h;
 char map[100][100];
-int check[100][100][4]; //map[x][y][방향]
-int sx = -1, sy;        //시작 좌표
-int dx[4] = {-1, 0, 1, 0};
-int dy[4] = {0, 1, 0, -1};
+int mirror_cnt[100][100][4];
+int start_x = -1, start_y;
+int res = INT_MAX;
 
-void bfs(int i, int j)
+int dx[] = {-1, 0, 1, 0};
+int dy[] = {0, 1, 0, -1};
+
+void laser_bfs()
 {
     queue<pair<pair<int, int>, int>> q;
-    check[i][j][0] = check[i][j][1] = check[i][j][2] = check[i][j][3] = 0;  //시작점은 전부 0
-    q.push(make_pair(make_pair(i, j), 0));
-    q.push(make_pair(make_pair(i, j), 1));
-    q.push(make_pair(make_pair(i, j), 2));
-    q.push(make_pair(make_pair(i, j), 3));
+    mirror_cnt[start_x][start_y][0] = mirror_cnt[start_x][start_y][1] = 0;
+    mirror_cnt[start_x][start_y][2] = mirror_cnt[start_x][start_y][3] = 0;
 
-    int res = MAX;
+    q.push({{start_x, start_y}, 0});
+    q.push({{start_x, start_y}, 1});
+    q.push({{start_x, start_y}, 2});
+    q.push({{start_x, start_y}, 3});
+
     while (!q.empty())
     {
         int x = q.front().first.first;
@@ -29,38 +33,39 @@ void bfs(int i, int j)
         int d = q.front().second;
         q.pop();
 
-        if (map[x][y] == 'C')   //도착했으면
+        if (map[x][y] == 'C')
         {
-            res = min(res, check[x][y][d]);
+            res = min(res, mirror_cnt[x][y][d]);
             continue;
         }
+
         for (int dir = 0; dir < 4; dir++)
         {
             int nx = x + dx[dir];
             int ny = y + dy[dir];
 
-            if (nx < 0 || nx >= h || ny < 0 || ny >= w)
+            //범위를 벗어날 경우
+            if (nx < 0 || ny < 0 || nx >= h || ny >= w)
                 continue;
 
+            //벽일 경우
             if (map[nx][ny] == '*')
                 continue;
 
-            if (d != dir && check[x][y][d] + 1 < check[nx][ny][dir])    //기존 방향과 다를 경우
+            if (dir == d && mirror_cnt[x][y][d] < mirror_cnt[nx][ny][dir]) //방향이 같으면서 기존 거울 개수보다 작을 경우
             {
-                check[nx][ny][dir] = check[x][y][d] + 1;
-                q.push(make_pair(make_pair(nx, ny), dir));
+                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d];
+                q.push({{nx, ny}, dir});
             }
-            else if (d == dir && check[x][y][d] < check[nx][ny][dir])   //기존 방향과 같을 경우
+            else if (dir != d && mirror_cnt[x][y][d] + 1 < mirror_cnt[nx][ny][dir]) //방향이 다르면서 기존 거울 개수보다 작을 경우
             {
-                check[nx][ny][dir] = check[x][y][d];
-                q.push(make_pair(make_pair(nx, ny), dir));
+                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d] + 1;
+                q.push({{nx, ny}, dir});
             }
         }
     }
-    if (res != 987654321)
-    cout<<res;
-    return;
 }
+
 int main()
 {
     ios::sync_with_stdio(false);
@@ -74,19 +79,23 @@ int main()
         {
             cin >> map[i][j];
 
-            for (int k = 0; k < 4; k++)
-                check[i][j][k] = MAX;
-
-            if (map[i][j] == 'C' && sx == -1)
+            if (map[i][j] == 'C' && start_x == -1)
             {
-                sx = i;
-                sy = j;
+                start_x = i;
+                start_y = j;
                 map[i][j] = '.';
+            }
+
+            for (int d = 0; d < 4; d++)
+            {
+                mirror_cnt[i][j][d] = INT_MAX;
             }
         }
     }
+    
+    laser_bfs();
 
-    bfs(sx, sy);
+    cout << res << '\n';
 
     return 0;
 }

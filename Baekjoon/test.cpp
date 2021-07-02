@@ -1,86 +1,69 @@
 #include <iostream>
 #include <queue>
-#include <cstring>
-#include <climits>
 #include <algorithm>
+#include <climits>
+#include <cstring>
 
 using namespace std;
 
-int n;
-int map[20][20];
-int dist[20][20];
-int shark_x, shark_y;
-int shark_size = 2;
-int min_x, min_y;
+int w, h;
+char map[100][100];
+int mirror_cnt[100][100][4];
+int start_x = -1, start_y;
+int res = INT_MAX;
 
 int dx[] = {-1, 0, 1, 0};
 int dy[] = {0, 1, 0, -1};
 
-int find_fish()
+void laser_bfs()
 {
-    queue<pair<int, int>> q;
-    q.push({shark_x, shark_y});
-    dist[shark_x][shark_y] = 0;
-    int min_dist = INT_MAX;
+    queue<pair<pair<int, int>, int>> q;
+    mirror_cnt[start_x][start_y][0] = mirror_cnt[start_x][start_y][1] = 0;
+    mirror_cnt[start_x][start_y][2] = mirror_cnt[start_x][start_y][3] = 0;
+
+    q.push({{start_x, start_y}, 0});
+    q.push({{start_x, start_y}, 1});
+    q.push({{start_x, start_y}, 2});
+    q.push({{start_x, start_y}, 3});
 
     while (!q.empty())
     {
-        int x = q.front().first;
-        int y = q.front().second;
+        int x = q.front().first.first;
+        int y = q.front().first.second;
+        int d = q.front().second;
         q.pop();
+
+        if (map[x][y] == 'C')
+        {
+            res = min(res, mirror_cnt[x][y][d]);
+            continue;
+        }
 
         for (int dir = 0; dir < 4; dir++)
         {
             int nx = x + dx[dir];
             int ny = y + dy[dir];
-            
-            // 범위 밖인 경우
-            if (nx < 0 || ny < 0 || nx >= n || ny >= n)
+
+            //범위를 벗어날 경우
+            if (nx < 0 || ny < 0 || nx >= h || ny >= w)
                 continue;
 
-            //상어 크기보다 큰 물고기인 경우, 이미 방문한 경우
-            if (map[nx][ny] > shark_size || dist[nx][ny] != -1)
+            //벽일 경우
+            if (map[nx][ny] == '*')
                 continue;
 
-            dist[nx][ny] = dist[x][y] + 1;
-            q.push({nx, ny});
-            
-            //먹을 수 있는 물고기인 경우
-            if (shark_size > map[nx][ny] && map[nx][ny] != 0)
-            {   
-                //최단 거리보다 작은 경우
-                if (min_dist > dist[nx][ny])
-                {
-                    min_dist = dist[nx][ny];
-                    min_x = nx;
-                    min_y = ny;
-                }
-                //최단 거리와 같은 경우
-                else if (min_dist == dist[nx][ny])
-                {   
-                    //가장 위쪽, 왼쪽
-                    if (min_x == nx && min_y > ny)
-                    {
-                        min_dist = dist[nx][ny];
-                        min_x = nx;
-                        min_y = ny;
-                    }
-
-                    else if (min_x > nx)
-                    {
-                        min_dist = dist[nx][ny];
-                        min_x = nx;
-                        min_y = ny;
-                    }
-                }
+            if (dir == d && mirror_cnt[x][y][d] < mirror_cnt[nx][ny][dir]) //방향이 같으면서 기존 거울 개수보다 작을 경우
+            {
+                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d];
+                q.push({{nx, ny}, dir});
+            }
+            else if (dir != d && mirror_cnt[x][y][d] + 1 < mirror_cnt[nx][ny][dir]) //방향이 다르면서 기존 거울 개수보다 작을 경우
+            {
+                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d] + 1;
+                q.push({{nx, ny}, dir});
             }
         }
     }
-    //먹을 수 있는 물고기가 없는 경우
-    if (min_dist == INT_MAX)
-        return -1;
-
-    return min_dist;
 }
 
 int main()
@@ -88,63 +71,31 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(0);
 
-    cin >> n;
+    cin >> w >> h;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < h; i++)
     {
-        for (int j = 0; j < n; j++)
+        for (int j = 0; j < w; j++)
         {
             cin >> map[i][j];
 
-            if (map[i][j] == 9)
+            if (map[i][j] == 'C' && start_x == -1)
             {
-                shark_x = i;
-                shark_y = j;
-                map[i][j] = 0;
+                start_x = i;
+                start_y = j;
+                map[i][j] = '.';
+            }
+
+            for (int d = 0; d < 4; d++)
+            {
+                mirror_cnt[i][j][d] = INT_MAX;
             }
         }
     }
+    
+    laser_bfs();
 
-    int time = 0;
-    int eat_cnt = 0;
-
-    while (true)
-    {
-        memset(dist, -1, sizeof(dist));
-
-        int find_time = find_fish();
-
-        //먹을 수 있는 물고기를 못 찾음
-        if (find_time == -1)
-            break;
-
-        time += find_time;
-        shark_x = min_x;
-        shark_y = min_y;
-        map[min_x][min_y] = 0;
-        eat_cnt += 1;
-
-
-        //먹은 물고기 수가 상어의 크기와 같으면 
-        if (eat_cnt == shark_size)
-        {
-            eat_cnt = 0;
-            shark_size += 1;
-        }
-    }
-
-
-    // cout<<"====================\n";
-    // for(int i =0;i<n;i++)
-    // {
-    //     for(int j=0;j<n;j++)
-    //     {
-    //         cout<<map[i][j]<<' ';
-    //     }
-    //     cout<<'\n';
-    // }
-
-    cout << time << '\n';
+    cout << res << '\n';
 
     return 0;
 }
