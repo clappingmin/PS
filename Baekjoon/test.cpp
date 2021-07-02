@@ -1,101 +1,94 @@
-#include <iostream>
-#include <queue>
-#include <algorithm>
-#include <climits>
-#include <cstring>
-
+#include<iostream>
+#include<cstring>
+#include<queue>
+#include<string>
+ 
+#define endl "\n"
+#define MAX 10000
 using namespace std;
-
-int w, h;
-char map[100][100];
-int mirror_cnt[100][100][4];
-int start_x = -1, start_y;
-int res = INT_MAX;
-
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
-
-void laser_bfs()
+ 
+bool EraTos[MAX];
+bool Visit[MAX];
+ 
+int Start, End;
+ 
+void Initialize()
 {
-    queue<pair<pair<int, int>, int>> q;
-    mirror_cnt[start_x][start_y][0] = mirror_cnt[start_x][start_y][1] = 0;
-    mirror_cnt[start_x][start_y][2] = mirror_cnt[start_x][start_y][3] = 0;
-
-    q.push({{start_x, start_y}, 0});
-    q.push({{start_x, start_y}, 1});
-    q.push({{start_x, start_y}, 2});
-    q.push({{start_x, start_y}, 3});
-
-    while (!q.empty())
+    memset(EraTos, true, sizeof(EraTos));
+    for (int i = 2; i < MAX; i++)
     {
-        int x = q.front().first.first;
-        int y = q.front().first.second;
-        int d = q.front().second;
-        q.pop();
-
-        if (map[x][y] == 'C')
+        for (int j = 2; i*j < MAX; j++)
         {
-            res = min(res, mirror_cnt[x][y][d]);
-            continue;
+            EraTos[i*j] = false;
         }
-
-        for (int dir = 0; dir < 4; dir++)
+    }
+    memset(Visit, false, sizeof(Visit));
+}
+ 
+void Input()
+{
+    cin >> Start >> End;
+}
+ 
+void Solution()
+{
+    queue<pair<int, int>> Q;
+    Q.push(make_pair(Start, 0));
+    Visit[Start] = true;
+ 
+    while (Q.empty() == 0)
+    {
+        int Cur_Num = Q.front().first;
+        int Cnt = Q.front().second;
+        Q.pop();
+ 
+        if (Cur_Num == End)
         {
-            int nx = x + dx[dir];
-            int ny = y + dy[dir];
-
-            //범위를 벗어날 경우
-            if (nx < 0 || ny < 0 || nx >= h || ny >= w)
-                continue;
-
-            //벽일 경우
-            if (map[nx][ny] == '*')
-                continue;
-
-            if (dir == d && mirror_cnt[x][y][d] < mirror_cnt[nx][ny][dir]) //방향이 같으면서 기존 거울 개수보다 작을 경우
+            cout << Cnt << endl;
+            return;
+        }
+ 
+        for (int i = 0; i < 4; i++)
+        {
+            int Next_Num;
+            for (int j = 0; j < 10; j++)
             {
-                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d];
-                q.push({{nx, ny}, dir});
-            }
-            else if (dir != d && mirror_cnt[x][y][d] + 1 < mirror_cnt[nx][ny][dir]) //방향이 다르면서 기존 거울 개수보다 작을 경우
-            {
-                mirror_cnt[nx][ny][dir] = mirror_cnt[x][y][d] + 1;
-                q.push({{nx, ny}, dir});
+                string s = to_string(Cur_Num);
+                s[i] = j + '0';
+                Next_Num = stoi(s);
+ 
+                if (EraTos[Next_Num] == false) continue;
+                if (Visit[Next_Num] == true) continue;
+                if (Next_Num >= 10000 || Next_Num < 1000) continue;
+ 
+                Visit[Next_Num] = true;
+                Q.push(make_pair(Next_Num, Cnt + 1));                
             }
         }
+    }
+    cout << "Impossible" << endl;
+}
+ 
+void Solve()
+{
+    int Tc;
+    cin >> Tc;
+    for (int T = 1; T <= Tc; T++)
+    {
+        Initialize();
+        Input();
+        Solution();
     }
 }
-
-int main()
+ 
+int main(void)
 {
     ios::sync_with_stdio(false);
-    cin.tie(0);
-
-    cin >> w >> h;
-
-    for (int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            cin >> map[i][j];
-
-            if (map[i][j] == 'C' && start_x == -1)
-            {
-                start_x = i;
-                start_y = j;
-                map[i][j] = '.';
-            }
-
-            for (int d = 0; d < 4; d++)
-            {
-                mirror_cnt[i][j][d] = INT_MAX;
-            }
-        }
-    }
-    
-    laser_bfs();
-
-    cout << res << '\n';
-
+    cin.tie(NULL);
+    cout.tie(NULL);
+ 
+//    freopen("Input.txt", "r", stdin);
+    Solve();
+ 
     return 0;
 }
