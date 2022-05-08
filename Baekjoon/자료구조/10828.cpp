@@ -6,51 +6,64 @@ using namespace std;
 
 int main()
 {
-    int n;
-    scanf("%d", &n);
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
+    int testcase = 0;
+
+    cin >> testcase;
     stack<int> s;
 
-    while (n--)
+    while (testcase--)
     {
-        string cmd;
-        int n;
+        string cmd = "";
+        int num = 0;
         cin >> cmd;
 
         if (cmd == "push")
         {
-            scanf("%d", &n);
-            s.push(n);
+            cin >> num;
+            s.push(num);
         }
         else if (cmd == "pop")
         {
             if (s.empty())
-                printf("-1\n");
+            {
+                cout << -1 << '\n';
+            }
             else
             {
-                int tmp = s.top();
+                cout << s.top() << '\n';
                 s.pop();
-                printf("%d\n", tmp);
             }
         }
         else if (cmd == "size")
         {
-            printf("%d\n", s.size());
+            cout << s.size() << '\n';
         }
         else if (cmd == "empty")
         {
             if (s.empty())
-                printf("1\n");
+            {
+                cout << 1 << '\n';
+            }
             else
-                printf("0\n");
+            {
+                cout << 0 << '\n';
+            }
         }
         else if (cmd == "top")
         {
             if (s.empty())
-                printf("-1\n");
+            {
+                cout << -1 << '\n';
+            }
             else
-                printf("%d\n", s.top());
+            {
+                cout << s.top() << '\n';
+            }
         }
     }
+
     return 0;
 }
