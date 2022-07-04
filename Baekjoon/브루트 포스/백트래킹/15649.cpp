@@ -1,38 +1,43 @@
 #include <iostream>
-#define MAX 8
+
 using namespace std;
 
-int a[MAX];
-bool check[MAX + 1];
-void go(int index, int n, int m)
+int n, m; // 1부터 n까지의 자연수 중 m개를 고른 수열
+int arr[9];
+bool check[9];
+
+void go(int index)
 {
-    if (index == m)
+  if (index == m)
+  {
+    for (int i = 0; i < m; i++)
     {
-        for (int i = 0; i < m; i++)
-            printf("%d ", a[i]);
-
-        printf("\n");
-        return;
+      cout << arr[i] << " ";
     }
-    for (int i = 1; i <= n; i++)
-    {
-        if (check[i])
-            continue;
+    cout << '\n';
+    return;
+  }
 
-        a[index] = i;
-        check[i] = true;
-        go(index + 1, n, m);
-        check[i] = false;
-    }
+  for (int i = 1; i <= n; i++)
+  {
+    if (check[i])
+      continue;
+
+    arr[index] = i;
+    check[i] = true;
+    go(index + 1);
+    check[i] = false;
+  }
 }
 
 int main()
-{ //1부터 N까지 자연수 중에서 중복 없이 M개를 고른 수열
-    int n, m;
+{
+  ios::sync_with_stdio(false);
+  cin.tie(0);
 
-    scanf("%d%d", &n, &m);
+  cin >> n >> m;
 
-    go(0, n, m);
+  go(0);
 
-    return 0;
+  return 0;
 }
