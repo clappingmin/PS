@@ -2,9 +2,8 @@
 
 using namespace std;
 
+int n, m;
 int arr[8];
-bool check[8];
-int n, m; //1부터 N까지 수를 가지는 m길이의 배열
 
 void go(int index)
 {
@@ -15,9 +14,9 @@ void go(int index)
         cout << '\n';
         return;
     }
-
     for (int i = 1; i <= n; i++)
     {
+
         arr[index] = i;
         go(index + 1);
     }

@@ -2,25 +2,25 @@
 
 using namespace std;
 
-int arr[8];
-bool check[8];
-int n, m; //1부터 N까지 수를 가지는 m길이의 배열
+int n, m;
+int arr[9];
 
 void go(int index, int num)
 {
     if (index == m)
     {
         for (int i = 0; i < m; i++)
-            cout << arr[i] << ' ';
+        {
+            cout << arr[i] << " ";
+        }
         cout << '\n';
         return;
     }
-
     for (int i = num; i <= n; i++)
     {
+
         arr[index] = i;
-        num = i;
-        go(index + 1, num);
+        go(index + 1, i);
     }
 }
 
