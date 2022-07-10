@@ -4,23 +4,27 @@
 
 using namespace std;
 
-int arr[8];
 int n, m;
+vector<int> input;
+int output[8];
 
-void go(int index, vector<int> &input)
+void go(int index)
 {
     if (index == m)
     {
         for (int i = 0; i < m; i++)
-            cout << arr[i] << ' ';
+        {
+            cout << output[i] << ' ';
+        }
         cout << '\n';
         return;
     }
 
     for (int i = 0; i < n; i++)
     {
-        arr[index] = input[i];
-        go(index + 1, input);
+
+        output[index] = input[i];
+        go(index + 1);
     }
 }
 
@@ -31,14 +35,16 @@ int main()
 
     cin >> n >> m;
 
-    vector<int> input(n);
-
     for (int i = 0; i < n; i++)
-        cin >> input[i];
+    {
+        int num;
+        cin >> num;
+        input.push_back(num);
+    }
 
     sort(input.begin(), input.end());
 
-    go(0, input);
+    go(0);
 
     return 0;
 }

@@ -1,69 +1,48 @@
 #include <iostream>
-#include <string>
-#include <stack>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
+
+int n, m;
+vector<int> input;
+int output[9];
+
+void go(int index, int start)
+{
+  if (index == m)
+  {
+    for (int i = 0; i < m; i++)
+    {
+      cout << output[i] << ' ';
+    }
+    cout << '\n';
+    return;
+  }
+  for (int i = start; i < n; i++)
+  {
+    output[index] = input[i];
+    go(index + 1, i);
+  }
+}
 
 int main()
 {
   ios::sync_with_stdio(false);
   cin.tie(0);
 
-  int testcase = 0;
+  cin >> n >> m;
 
-  cin >> testcase;
-  stack<int> s;
-
-  while (testcase--)
+  for (int i = 0; i < n; i++)
   {
-    string cmd = "";
-    int num = 0;
-    cin >> cmd;
-
-    if (cmd == "push")
-    {
-      cin >> num;
-      s.push(num);
-    }
-    else if (cmd == "pop")
-    {
-      if (s.empty())
-      {
-        cout << -1 << '\n';
-      }
-      else
-      {
-        cout << s.top() << '\n';
-        s.pop();
-      }
-    }
-    else if (cmd == "size")
-    {
-      cout << s.size() << '\n';
-    }
-    else if (cmd == "empty")
-    {
-      if (s.empty())
-      {
-        cout << 1 << '\n';
-      }
-      else
-      {
-        cout << 0 << '\n';
-      }
-    }
-    else if (cmd == "top")
-    {
-      if (s.empty())
-      {
-        cout << -1 << '\n';
-      }
-      else
-      {
-        cout << s.top() << '\n';
-      }
-    }
+    int num;
+    cin >> num;
+    input.push_back(num);
   }
+
+  sort(input.begin(), input.end());
+
+  go(0, 0);
 
   return 0;
 }

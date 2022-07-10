@@ -4,45 +4,52 @@
 
 using namespace std;
 
+int n, m;
 vector<int> input;
-int output[8];
-bool check[10000 + 1];
+int output[9];
+bool check[10001];
 
-void go(int index, int start, int n, int m)
+void go(int index, int start)
 {
     if (index == m)
     {
         for (int i = 0; i < m; i++)
-            printf("%d ", output[i]);
-        printf("\n");
+        {
+            cout << output[i] << ' ';
+        }
+        cout << '\n';
         return;
     }
+
     for (int i = start; i < n; i++)
     {
         if (check[input[i]])
             continue;
 
-        output[index] = input[i];
         check[input[i]] = true;
-        go(index + 1, i, n, m);
+        output[index] = input[i];
+        go(index + 1, i + 1);
         check[input[i]] = false;
     }
 }
 
 int main()
 {
-    int n, m;
-    scanf("%d%d", &n, &m);
+    ios::sync_with_stdio(false);
+    cin.tie(0);
 
-    input.resize(n);
+    cin >> n >> m;
+
     for (int i = 0; i < n; i++)
     {
-        cin >> input[i];
+        int num;
+        cin >> num;
+        input.push_back(num);
     }
 
     sort(input.begin(), input.end());
 
-    go(0, 0, n, m);
+    go(0, 0);
 
     return 0;
 }
