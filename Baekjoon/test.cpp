@@ -1,27 +1,26 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
 int n;
+int t[16];
+int p[16];
 int res = 0;
-vector<int> output;
 
-void solution(int now, int want)
+void go(int day, int pay)
 {
-  if (now == want)
+  if (day == n + 1) // 퇴사하는 날
   {
-    res += 1;
+    if (res < pay)
+      res = pay;
     return;
   }
-  if (now + 1 <= want)
-    solution(now + 1, want);
 
-  if (now + 2 <= want)
-    solution(now + 2, want);
+  if (day > n + 1)
+    return;
 
-  if (now + 3 <= want)
-    solution(now + 3, want);
+  go(day + t[day], pay + p[day]);
+  go(day + 1, pay);
 }
 
 int main()
@@ -31,18 +30,14 @@ int main()
 
   cin >> n;
 
-  while (n--)
+  for (int i = 1; i <= n; i++)
   {
-    int num;
-    res = 0;
-    cin >> num;
-
-    solution(0, num);
-    output.push_back(res);
+    cin >> t[i] >> p[i];
   }
 
-  for (int i = 0; i < output.size(); i++)
-    cout << output[i] << '\n';
+  go(1, 0);
+
+  cout << res << '\n';
 
   return 0;
 }
